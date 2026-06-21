@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "trae-loop state",
+  "type": "object",
+  "required": [
+    "projectName",
+    "version",
+    "currentPhase",
+    "status",
+    "history",
+    "currentAttempt",
+    "maxAttempts",
+    "artifacts",
+    "errors",
+    "startedAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "projectName": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "currentPhase": {
+      "type": "string",
+      "enum": [
+        "init",
+        "scoping",
+        "executing",
+        "done"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "running",
+        "PAUSED",
+        "done"
+      ]
+    },
+    "currentAttempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "maxAttempts": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "phase",
+          "attempt",
+          "status",
+          "output",
+          "confirmed",
+          "confirmedAt"
+        ],
+        "properties": {
+          "phase": {
+            "type": "string"
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "status": {
+            "type": "string"
+          },
+          "output": {
+            "type": ["string", "null"]
+          },
+          "confirmed": {
+            "type": "boolean"
+          },
+          "confirmedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "properties": {
+        "scoping": {
+          "type": ["string", "null"]
+        },
+        "executing": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ts", "msg"],
+        "properties": {
+          "ts": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "msg": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

@@ -277,16 +277,14 @@ struct RemoteApprovalView: View {
 
 // MARK: - Preview
 
-#Preview {
-    RemoteApprovalView(
-        approvalInfo: ApprovalInfo(
-            eventId: "evt_abc123",
-            commandSummary: "rm -rf ./node_modules",
-            commandDetails: "删除整个 node_modules 目录及其所有依赖包",
-            riskLevel: .high,
-            rawCommand: "rm -rf ./node_modules"
-        ),
-        onApprove: { print("Approved") },
-        onReject: { print("Rejected") }
-    )
-}
+// RemoteApprovalView(
+//     approvalInfo: ApprovalInfo(
+//         eventId: "evt_abc123",
+//         commandSummary: "rm -rf ./node_modules",
+//         commandDetails: "删除整个 node_modules 目录及其所有依赖包",
+//         riskLevel: .high,
+//         rawCommand: "rm -rf ./node_modules"
+//     ),
+//     onApprove: { print("Approved") },
+//     onReject: { print("Rejected") }
+// )

@@ -15,7 +15,7 @@ final class WebSocketBridge: ObservableObject {
     
     // MARK: - Private Properties
     
-    private var webSocketTask: URLSessionWebSocketTask?
+    var webSocketTask: URLSessionWebSocketTask?  // internal for HMACSigner extension
     private var urlSession: URLSession
     private let relayURL: URL
     private var reconnectAttempts: Int = 0
@@ -173,5 +173,51 @@ final class WebSocketBridge: ObservableObject {
                 handleEvent(ClaudeEvent.sample(type: eventType))
             }
         }
+    }
+}
+
+// MARK: - HMACSigner Integration
+
+/// 扩展 WebSocketBridge 以支持 HMAC 签名验证
+/// 注意：需要 HMACSigner.swift 在同一编译单元中
+extension WebSocketBridge {
+    
+    /// 使用签名验证接收消息
+    /// - Parameter signedMessage: 签名后的消息
+    /// - Parameter signer: 签名器
+    func handleSignedMessage(_ signedMessage: String, signer: HMACSigner) {
+        guard let event = signer.verify(signedMessage: signedMessage) else {
+            print("签名验证失败，丢弃消息")
+            return
+        }
+        
+        // 直接更新状态（替代 private handleEvent）
+        currentEvent = event
+        eventHistory.append(event)
+        
+        if eventHistory.count > 50 {
+            eventHistory.removeFirst(eventHistory.count - 50)
+        }
+        
+        // 更新 Live Activity
+        LiveActivityManager.shared.updateActivity(with: event)
+    }
+    
+    /// 发送签名审批响应
+    /// - Parameters:
+    ///   - eventId: 审批事件 ID
+    ///   - approved: 是否批准
+    ///   - signer: 签名器
+    func sendSignedApprovalResponse(eventId: String, approved: Bool, signer: HMACSigner) {
+        guard let signedResponse = signer.signApprovalResponse(eventId: eventId, approved: approved) else {
+            print("签名失败")
+            return
+        }
+        
+        webSocketTask?.send(.string(signedResponse), completionHandler: { error in
+            if let error = error {
+                print("发送签名响应失败: \(error.localizedDescription)")
+            }
+        })
     }
 }

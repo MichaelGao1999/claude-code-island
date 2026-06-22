@@ -351,10 +351,7 @@ struct IslandView: View {
 
 // MARK: - Preview
 
-#Preview {
-    let manager = EventStreamManager()
-    manager.enableMockMode()
-    
-    return IslandView(eventManager: manager)
-        .padding()
-}
+// let manager = EventStreamManager()
+// manager.enableMockMode()
+// return IslandView(eventManager: manager)
+//     .padding()

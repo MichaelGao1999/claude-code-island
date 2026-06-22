@@ -218,59 +218,51 @@ func exampleHMACUsage() {
 // MARK: - Integration with EventStreamManager
 
 /// 扩展 EventStreamManager 以支持签名验证
+/// 注意：需要将 handleEvent 改为 internal 或添加 public 方法
 extension EventStreamManager {
     
     /// 使用签名验证接收消息
+    /// - Parameter signedMessage: 签名后的消息
+    /// - Parameter signer: 签名器
     func handleSignedMessage(_ signedMessage: String, signer: HMACSigner) {
         guard let event = signer.verify(signedMessage: signedMessage) else {
             print("签名验证失败，丢弃消息")
             return
         }
         
-        handleEvent(event)
+        // 直接更新状态（替代 private handleEvent）
+        currentEvent = event
+        eventHistory.append(event)
+        
+        if eventHistory.count > 100 {
+            eventHistory.removeFirst(eventHistory.count - 100)
+        }
     }
     
     /// 发送签名审批响应
+    /// - Parameters:
+    ///   - eventId: 审批事件 ID
+    ///   - approved: 是否批准
+    ///   - signer: 签名器
     func sendSignedApprovalResponse(eventId: String, approved: Bool, signer: HMACSigner) {
         guard let signedResponse = signer.signApprovalResponse(eventId: eventId, approved: approved) else {
             print("签名失败")
             return
         }
         
-        webSocketTask?.send(.string(signedResponse), completionHandler: { error in
+        sendRawMessage(signedResponse)
+    }
+    
+    /// 发送原始消息
+    private func sendRawMessage(_ message: String) {
+        webSocketTask?.send(.string(message), completionHandler: { error in
             if let error = error {
-                print("发送签名响应失败: \(error.localizedDescription)")
+                print("发送消息失败: \(error.localizedDescription)")
             }
         })
     }
 }
 
-// MARK: - Integration with WebSocketBridge
+// MARK: - iOS Integration
 
-/// 扩展 WebSocketBridge 以支持签名验证
-extension WebSocketBridge {
-    
-    /// 使用签名验证接收消息
-    func handleSignedMessage(_ signedMessage: String, signer: HMACSigner) {
-        guard let event = signer.verify(signedMessage: signedMessage) else {
-            print("签名验证失败，丢弃消息")
-            return
-        }
-        
-        handleEvent(event)
-    }
-    
-    /// 发送签名审批响应
-    func sendSignedApprovalResponse(eventId: String, approved: Bool, signer: HMACSigner) {
-        guard let signedResponse = signer.signApprovalResponse(eventId: eventId, approved: approved) else {
-            print("签名失败")
-            return
-        }
-        
-        webSocketTask?.send(.string(signedResponse), completionHandler: { error in
-            if let error = error {
-                print("发送签名响应失败: \(error.localizedDescription)")
-            }
-        })
-    }
-}
+/// 注意：iOS 的 WebSocketBridge 扩展在 ios-island/WebSocketBridge.swift 中实现

@@ -327,6 +327,4 @@ protocol ActivityManagerProtocol: ObservableObject {
 
 // MARK: - Preview
 
-#Preview {
-    ContentView(bridge: WebSocketBridge())
-}
+// ContentView(bridge: WebSocketBridge())

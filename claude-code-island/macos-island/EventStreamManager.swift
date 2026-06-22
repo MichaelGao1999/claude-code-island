@@ -15,7 +15,7 @@ final class EventStreamManager: ObservableObject, Sendable {
     
     // MARK: - Private Properties
     
-    private var webSocketTask: URLSessionWebSocketTask?
+    var webSocketTask: URLSessionWebSocketTask?  // internal for HMACSigner extension
     private var urlSession: URLSession
     private let serverURL: URL
     private var reconnectAttempts: Int = 0
@@ -28,8 +28,8 @@ final class EventStreamManager: ObservableObject, Sendable {
     
     // MARK: - Initialization
     
-    init(serverURL: URL = Self.defaultServerURL) {
-        self.serverURL = serverURL
+    init(serverURL: URL? = nil) {
+        self.serverURL = serverURL ?? Self.defaultServerURL
         self.urlSession = URLSession.shared
     }
     

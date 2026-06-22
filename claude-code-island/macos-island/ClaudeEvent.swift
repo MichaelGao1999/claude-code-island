@@ -194,11 +194,27 @@ struct ApprovalInfo: Sendable {
     let riskLevel: RiskLevel
     let rawCommand: String
 
+    /// 从事件创建
     init(from event: ClaudeEvent) {
         self.eventId = event.payload.eventId ?? event.id.uuidString
         self.commandSummary = event.payload.commandSummary ?? ""
         self.commandDetails = event.payload.commandDetails ?? ""
-        self.riskLevel = event.payload.riskLevel ?? .low
+        self.riskLevel = event.payload.riskLevel ?? .medium
         self.rawCommand = event.payload.rawCommand ?? ""
+    }
+    
+    /// 直接初始化（用于 Preview 和测试）
+    init(
+        eventId: String,
+        commandSummary: String,
+        commandDetails: String,
+        riskLevel: RiskLevel,
+        rawCommand: String
+    ) {
+        self.eventId = eventId
+        self.commandSummary = commandSummary
+        self.commandDetails = commandDetails
+        self.riskLevel = riskLevel
+        self.rawCommand = rawCommand
     }
 }

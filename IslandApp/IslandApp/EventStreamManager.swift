@@ -1,10 +1,10 @@
 import Foundation
 import Combine
 
-/// WebSocket 桥接器，用于 iOS App 连接到 Mac relay
-/// Mac 作为 WebSocket relay，转发 Claude Code 事件到 iOS
+/// WebSocket 客户端管理器，负责连接 Claude Code 事件流
+/// 使用 URLSession WebSocket 实现，支持自动重连
 @MainActor
-final class WebSocketBridge: ObservableObject {
+final class EventStreamManager: ObservableObject, Sendable {
     
     // MARK: - Published Properties
     
@@ -17,29 +17,29 @@ final class WebSocketBridge: ObservableObject {
     
     var webSocketTask: URLSessionWebSocketTask?  // internal for HMACSigner extension
     private var urlSession: URLSession
-    private let relayURL: URL
+    private let serverURL: URL
     private var reconnectAttempts: Int = 0
     private let maxReconnectAttempts: Int = 5
     private var reconnectTimer: Timer?
     
     // MARK: - Constants
     
-    static let defaultRelayURL = URL(string: "ws://localhost:8081/relay")!
+    static let defaultServerURL = URL(string: "ws://localhost:8080/events")!
     
     // MARK: - Initialization
     
-    init(relayURL: URL? = nil) {
-        self.relayURL = relayURL ?? Self.defaultRelayURL
+    init(serverURL: URL? = nil) {
+        self.serverURL = serverURL ?? Self.defaultServerURL
         self.urlSession = URLSession.shared
     }
     
     // MARK: - Public Methods
     
-    /// 连接到 Mac relay
+    /// 连接到 WebSocket 服务器
     func connect() {
         guard !isConnected else { return }
         
-        let request = URLRequest(url: relayURL)
+        let request = URLRequest(url: serverURL)
         webSocketTask = urlSession.webSocketTask(with: request)
         webSocketTask?.resume()
         
@@ -47,6 +47,10 @@ final class WebSocketBridge: ObservableObject {
         connectionError = nil
         reconnectAttempts = 0
         
+        // 发送连接事件
+        handleEvent(ClaudeEvent(type: .connected, message: "已连接到 Claude Code"))
+        
+        // 开始接收消息
         receiveMessage()
     }
     
@@ -56,11 +60,15 @@ final class WebSocketBridge: ObservableObject {
         webSocketTask = nil
         isConnected = false
         
+        // 发送断开事件
+        handleEvent(ClaudeEvent(type: .disconnected, message: "连接已断开"))
+        
+        // 取消重连定时器
         reconnectTimer?.invalidate()
         reconnectTimer = nil
     }
     
-    /// 发送审批响应到 Mac relay
+    /// 发送审批响应
     /// - Parameters:
     ///   - eventId: 审批事件 ID
     ///   - approved: 是否批准
@@ -68,8 +76,7 @@ final class WebSocketBridge: ObservableObject {
         let response: [String: Any] = [
             "type": approved ? "APPROVED" : "REJECTED",
             "eventId": eventId,
-            "timestamp": ISO8601DateFormatter().string(from: Date()),
-            "source": "iOS"
+            "timestamp": ISO8601DateFormatter().string(from: Date())
         ]
         
         guard let jsonData = try? JSONSerialization.data(withJSONObject: response),
@@ -86,7 +93,7 @@ final class WebSocketBridge: ObservableObject {
     
     // MARK: - Private Methods
     
-    /// 接收 WebSocket 消息
+    /// 接收 WebSocket 消息（递归调用）
     private func receiveMessage() {
         webSocketTask?.receive { [weak self] result in
             guard let self = self else { return }
@@ -109,6 +116,7 @@ final class WebSocketBridge: ObservableObject {
                     break
                 }
                 
+                // 继续接收下一条消息
                 if self.isConnected {
                     self.receiveMessage()
                 }
@@ -133,18 +141,9 @@ final class WebSocketBridge: ObservableObject {
         eventHistory.append(event)
         
         // 限制历史记录长度
-        if eventHistory.count > 50 {
-            eventHistory.removeFirst(eventHistory.count - 50)
+        if eventHistory.count > 100 {
+            eventHistory.removeFirst(eventHistory.count - 100)
         }
-        
-        // 更新 Live Activity
-        LiveActivityManager.shared.updateActivity(with: event)
-        
-        // 转发到 Apple Watch
-        #if canImport(WatchConnectivity)
-        WatchRelay.shared.forwardEvent(event)
-        WatchRelay.shared.syncStatus(event.type.displayName)
-        #endif
     }
     
     /// 处理断开连接
@@ -152,9 +151,10 @@ final class WebSocketBridge: ObservableObject {
         isConnected = false
         webSocketTask = nil
         
+        // 尝试重连
         if reconnectAttempts < maxReconnectAttempts {
             reconnectAttempts += 1
-            let delay = TimeInterval(reconnectAttempts * 2)
+            let delay = TimeInterval(reconnectAttempts * 2) // 递增延迟
             
             reconnectTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) { [weak self] _ in
                 Task { @MainActor in
@@ -162,7 +162,8 @@ final class WebSocketBridge: ObservableObject {
                 }
             }
         } else {
-            connectionError = "无法连接到 Mac relay，已达到最大重连次数"
+            connectionError = "无法连接到 Claude Code，已达到最大重连次数"
+            handleEvent(ClaudeEvent(type: .error, message: connectionError ?? "连接失败"))
         }
     }
     
@@ -173,6 +174,7 @@ final class WebSocketBridge: ObservableObject {
         isConnected = true
         connectionError = nil
         
+        // 模拟事件流
         Task {
             for eventType in [EventType.thinking, .coding, .waiting, .approvalRequired] {
                 try? await Task.sleep(for: .seconds(2))
@@ -181,7 +183,3 @@ final class WebSocketBridge: ObservableObject {
         }
     }
 }
-
-// MARK: - HMACSigner Integration
-
-/// 扩展 WebSocketBridge 以支持 HMAC 签名验证（在 HMACSigner.swift 中实现）

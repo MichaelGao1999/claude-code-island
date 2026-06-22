@@ -7,22 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		IO0000000000000000000001 /* WebSocketBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = IO00000000000000000000A /* WebSocketBridge.swift */; };
-		IO0000000000000000000002 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = IO00000000000000000000B /* LiveActivityManager.swift */; };
-		IO0000000000000000000003 /* RemoteApprovalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = IO00000000000000000000C /* RemoteApprovalView.swift */; };
-		IO0000000000000000000004 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = IO00000000000000000000D /* main.swift */; };
+		34e68b541b75ff323d08eba2 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = cffd5253003c791e338b8ff8 /* LiveActivityManager.swift */; };
+		0c79deb452d14c75ba3f17b3 /* RemoteApprovalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = d806b1b13aca69684f6b1c48 /* RemoteApprovalView.swift */; };
+		a82fe49106fa2c10b5726767 /* WatchRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = c99e9ade13510be9ea24cbfd /* WatchRelay.swift */; };
+		e7655cb587cc785a80f40d18 /* WebSocketBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86b4dbff28133826269b5a02 /* WebSocketBridge.swift */; };
+		222cab76c0321e3d27e337a1 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6b0f02e196460c54340e9365 /* main.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		IO00000000000000000000A /* WebSocketBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketBridge.swift; sourceTree = "<group>"; };
-		IO00000000000000000000B /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
-		IO00000000000000000000C /* RemoteApprovalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteApprovalView.swift; sourceTree = "<group>"; };
-		IO00000000000000000000D /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		IO00000000000000000000F /* iOSCompanion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSCompanion.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		cffd5253003c791e338b8ff8 /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LiveActivityManager.swift"; sourceTree = "<group>"; };
+		d806b1b13aca69684f6b1c48 /* RemoteApprovalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RemoteApprovalView.swift"; sourceTree = "<group>"; };
+		c99e9ade13510be9ea24cbfd /* WatchRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WatchRelay.swift"; sourceTree = "<group>"; };
+		86b4dbff28133826269b5a02 /* WebSocketBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WebSocketBridge.swift"; sourceTree = "<group>"; };
+		6b0f02e196460c54340e9365 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "main.swift"; sourceTree = "<group>"; };
+		54513fff8e3210ea7f5a5de9 /* iOSCompanion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOSCompanion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		IO0000000000000000000010 /* Frameworks */ = {
+		6dadf5a9283e71ea68e7068a /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -32,98 +34,94 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		IO0000000000000000000011 /* ios-island */ = {
+		f15c3831be3303a4f0bcf715 = {
 			isa = PBXGroup;
 			children = (
-				IO00000000000000000000A /* WebSocketBridge.swift */,
-				IO00000000000000000000B /* LiveActivityManager.swift */,
-				IO00000000000000000000C /* RemoteApprovalView.swift */,
-				IO00000000000000000000D /* main.swift */,
+				cffd5253003c791e338b8ff8 /* LiveActivityManager.swift */,
+				d806b1b13aca69684f6b1c48 /* RemoteApprovalView.swift */,
+				c99e9ade13510be9ea24cbfd /* WatchRelay.swift */,
+				86b4dbff28133826269b5a02 /* WebSocketBridge.swift */,
+				6b0f02e196460c54340e9365 /* main.swift */,
 			);
-			path = ios-island;
+			path = "ios-island";
 			sourceTree = "<group>";
 		};
-		IO0000000000000000000012 /* Products */ = {
+		33a95d6c3a804494d0a1e814 = {
 			isa = PBXGroup;
 			children = (
-				IO00000000000000000000F /* iOSCompanion.app */,
+				54513fff8e3210ea7f5a5de9 /* iOSCompanion.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		IO0000000000000000000013 /* claude-code-island */ = {
+		93b5c766109f7ba52dc8e5aa = {
 			isa = PBXGroup;
 			children = (
-				IO0000000000000000000011 /* ios-island */,
-				IO0000000000000000000012 /* Products */,
+				f15c3831be3303a4f0bcf715 /* ios-island */,
+				33a95d6c3a804494d0a1e814 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		IO0000000000000000000014 /* iOSCompanion */ = {
+		5450e26196e39db842bfd2e0 /* iOSCompanion */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = IO000000000000000000017 /* Build configuration list for PBXNativeTarget "iOSCompanion" */;
+			buildConfigurationList = 4d74707957ad4f08ee2a41d2 /* Build configuration list for PBXNativeTarget "iOSCompanion" */;
 			buildPhases = (
-				IO0000000000000000000015 /* Sources */,
-				IO0000000000000000000010 /* Frameworks */,
+				87572ecaaa8c19b1f4e8abb7 /* Sources */,
+				6dadf5a9283e71ea68e7068a /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = iOSCompanion;
+			name = "iOSCompanion";
 			productName = iOSCompanion;
-			productReference = IO00000000000000000000F /* iOSCompanion.app */;
+			productReference = 54513fff8e3210ea7f5a5de9 /* iOSCompanion.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		IO0000000000000000000015 /* Project object */ = {
+		f8c6ca07a82ba49363f74c03 /* Project object */ = {
 			isa = PBXProject;
-			attributes = {
-				LastUpgradeCheck = 1600;
-			};
-			buildConfigurationList = IO000000000000000000018 /* Build configuration list for PBXProject "iOSCompanion" */;
+			attributes = { LastUpgradeCheck = 1600; };
+			buildConfigurationList = 08d6ed66b8c6d1a26e6eaa6f /* Build configuration list for PBXProject "iOSCompanion" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
-			knownRegions = (
-				en,
-				Base,
-			);
-			mainGroup = IO0000000000000000000013 /* claude-code-island */;
-			productRefGroup = IO0000000000000000000012 /* Products */;
+			knownRegions = ( en, Base, );
+			mainGroup = 93b5c766109f7ba52dc8e5aa;
+			productRefGroup = 33a95d6c3a804494d0a1e814 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				IO0000000000000000000014 /* iOSCompanion */,
+				5450e26196e39db842bfd2e0 /* iOSCompanion */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		IO0000000000000000000015 /* Sources */ = {
+		87572ecaaa8c19b1f4e8abb7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				IO0000000000000000000001 /* WebSocketBridge.swift in Sources */,
-				IO0000000000000000000002 /* LiveActivityManager.swift in Sources */,
-				IO0000000000000000000003 /* RemoteApprovalView.swift in Sources */,
-				IO0000000000000000000004 /* main.swift in Sources */,
+				34e68b541b75ff323d08eba2 /* LiveActivityManager.swift in Sources */,
+				0c79deb452d14c75ba3f17b3 /* RemoteApprovalView.swift in Sources */,
+				a82fe49106fa2c10b5726767 /* WatchRelay.swift in Sources */,
+				e7655cb587cc785a80f40d18 /* WebSocketBridge.swift in Sources */,
+				222cab76c0321e3d27e337a1 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		IO0000000000000000000019 /* Debug */ = {
+		ebc9f43db82a5d69430a7dbe /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_MODULES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -132,12 +130,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				GCC_PREPROCESSOR_DEFINITIONS = ( "DEBUG=1", "$(inherited)", );
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -146,98 +139,74 @@
 			};
 			name = Debug;
 		};
-		IO000000000000000000001A /* Release */ = {
+		bf102cc3fba031d067a181c3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ENABLE_MODULES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
-				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
-		IO000000000000000000001B /* Debug */ = {
+		0b4289526f46a395725809b4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = iOSCompanion;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.ioscompanion;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				OTHER_SWIFT_FLAGS = "-parse-as-library";
+				LD_RUNPATH_SEARCH_PATHS = ( "$(inherited)", "@executable_path/../Frameworks", );
+				MACOSX_DEPLOYMENT_TARGET = 16.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.islandapp.ioscompanion;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		IO000000000000000000001C /* Release */ = {
+		2e8fbcfae3eaf0ada444716e /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = iOSCompanion;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.ioscompanion;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				OTHER_SWIFT_FLAGS = "-parse-as-library";
+				LD_RUNPATH_SEARCH_PATHS = ( "$(inherited)", "@executable_path/../Frameworks", );
+				MACOSX_DEPLOYMENT_TARGET = 16.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.islandapp.ioscompanion;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		IO0000000000000000000017 /* Build configuration list for PBXNativeTarget "iOSCompanion" */ = {
+		4d74707957ad4f08ee2a41d2 /* Build configuration list for PBXNativeTarget "iOSCompanion" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (
-				IO000000000000000000001B /* Debug */,
-				IO000000000000000000001C /* Release */,
-			);
+			buildConfigurations = ( {target_debug_conf_id} /* Debug */, {target_release_conf_id} /* Release */, );
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		IO0000000000000000000018 /* Build configuration list for PBXProject "iOSCompanion" */ = {
+		08d6ed66b8c6d1a26e6eaa6f /* Build configuration list for PBXProject "iOSCompanion" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (
-				IO0000000000000000000019 /* Debug */,
-				IO000000000000000000001A /* Release */,
-			);
+			buildConfigurations = ( {project_debug_conf_id} /* Debug */, {project_release_conf_id} /* Release */, );
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = IO0000000000000000000015 /* Project object */;
+	rootObject = f8c6ca07a82ba49363f74c03 /* Project object */;
 }

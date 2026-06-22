@@ -7,24 +7,30 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CE0000000000000000000001 /* ClaudeEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE00000000000000000000A /* ClaudeEvent.swift */; };
-		CE0000000000000000000002 /* EventStreamManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE00000000000000000000B /* EventStreamManager.swift */; };
-		CE0000000000000000000003 /* IslandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE00000000000000000000C /* IslandView.swift */; };
-		CE0000000000000000000004 /* ApprovalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE00000000000000000000D /* ApprovalView.swift */; };
-		CE0000000000000000000005 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE00000000000000000000E /* main.swift */; };
+		4a6e87d17ba5380b67f1ac18 /* ApprovalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0fd07c85b0d5fa6c56d08284 /* ApprovalView.swift */; };
+		520da4abe8d50bf4257dd418 /* ClaudeEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = e1616798df333e2373226fe8 /* ClaudeEvent.swift */; };
+		82de75bdf1c0b3f97826f1ae /* EventStreamManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = b49fcf76f7c3266feb71a1e0 /* EventStreamManager.swift */; };
+		caf111e0d90265576513564b /* HMACSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = fcbe8ff2cf609e2706d1c4a7 /* HMACSigner.swift */; };
+		1e69a6723fba5ba55905c421 /* IslandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40b90ff6ca79d43dd9eb2366 /* IslandView.swift */; };
+		1ca01c6ce2c13c46931e9433 /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3b5d7940213cb778b32e8b6e /* MenuBarContentView.swift */; };
+		87f19e36221863ef0f3bae14 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = e4e721c016a6519f90f800f6 /* SettingsView.swift */; };
+		d45bc543c7d823e2293f1d08 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ded2c5b441b8e96d322483c /* main.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		CE00000000000000000000A /* ClaudeEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeEvent.swift; sourceTree = "<group>"; };
-		CE00000000000000000000B /* EventStreamManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStreamManager.swift; sourceTree = "<group>"; };
-		CE00000000000000000000C /* IslandView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslandView.swift; sourceTree = "<group>"; };
-		CE00000000000000000000D /* ApprovalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApprovalView.swift; sourceTree = "<group>"; };
-		CE00000000000000000000E /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		CE00000000000000000000F /* IslandApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IslandApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0fd07c85b0d5fa6c56d08284 /* ApprovalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ApprovalView.swift"; sourceTree = "<group>"; };
+		e1616798df333e2373226fe8 /* ClaudeEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClaudeEvent.swift"; sourceTree = "<group>"; };
+		b49fcf76f7c3266feb71a1e0 /* EventStreamManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EventStreamManager.swift"; sourceTree = "<group>"; };
+		fcbe8ff2cf609e2706d1c4a7 /* HMACSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HMACSigner.swift"; sourceTree = "<group>"; };
+		40b90ff6ca79d43dd9eb2366 /* IslandView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IslandView.swift"; sourceTree = "<group>"; };
+		3b5d7940213cb778b32e8b6e /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MenuBarContentView.swift"; sourceTree = "<group>"; };
+		e4e721c016a6519f90f800f6 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsView.swift"; sourceTree = "<group>"; };
+		6ded2c5b441b8e96d322483c /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "main.swift"; sourceTree = "<group>"; };
+		40c85d12d09811e5f3123cf4 /* IslandApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "IslandApp.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		CE000000000000000000010 /* Frameworks */ = {
+		5ca528d965ffe2e7f38f2b22 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -34,101 +40,101 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		CE000000000000000000011 /* macos-island */ = {
+		ad81503fb8f5adbe01f2b23d = {
 			isa = PBXGroup;
 			children = (
-				CE00000000000000000000A /* ClaudeEvent.swift */,
-				CE00000000000000000000B /* EventStreamManager.swift */,
-				CE00000000000000000000C /* IslandView.swift */,
-				CE00000000000000000000D /* ApprovalView.swift */,
-				CE00000000000000000000E /* main.swift */,
+				0fd07c85b0d5fa6c56d08284 /* ApprovalView.swift */,
+				e1616798df333e2373226fe8 /* ClaudeEvent.swift */,
+				b49fcf76f7c3266feb71a1e0 /* EventStreamManager.swift */,
+				fcbe8ff2cf609e2706d1c4a7 /* HMACSigner.swift */,
+				40b90ff6ca79d43dd9eb2366 /* IslandView.swift */,
+				3b5d7940213cb778b32e8b6e /* MenuBarContentView.swift */,
+				e4e721c016a6519f90f800f6 /* SettingsView.swift */,
+				6ded2c5b441b8e96d322483c /* main.swift */,
 			);
-			path = macos-island;
+			path = "macos-island";
 			sourceTree = "<group>";
 		};
-		CE000000000000000000012 /* Products */ = {
+		ed188fddb1be76dd96f3e674 = {
 			isa = PBXGroup;
 			children = (
-				CE00000000000000000000F /* IslandApp.app */,
+				40c85d12d09811e5f3123cf4 /* IslandApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		CE000000000000000000013 /* claude-code-island */ = {
+		1d4554f75b81c36bb0b4519c = {
 			isa = PBXGroup;
 			children = (
-				CE000000000000000000011 /* macos-island */,
-				CE000000000000000000012 /* Products */,
+				ad81503fb8f5adbe01f2b23d /* macos-island */,
+				ed188fddb1be76dd96f3e674 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		CE000000000000000000014 /* IslandApp */ = {
+		180d1f9c878506cda7960d17 /* IslandApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CE000000000000000000017 /* Build configuration list for PBXNativeTarget "IslandApp" */;
+			buildConfigurationList = 3700d96377e3f7a03c61a6a6 /* Build configuration list for PBXNativeTarget "IslandApp" */;
 			buildPhases = (
-				CE000000000000000000015 /* Sources */,
-				CE000000000000000000010 /* Frameworks */,
+				584d37c2cdb997c17717eef5 /* Sources */,
+				5ca528d965ffe2e7f38f2b22 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = IslandApp;
+			name = "IslandApp";
 			productName = IslandApp;
-			productReference = CE00000000000000000000F /* IslandApp.app */;
+			productReference = 40c85d12d09811e5f3123cf4 /* IslandApp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		CE000000000000000000015 /* Project object */ = {
+		5e0610a47f3e94012ba0b92b /* Project object */ = {
 			isa = PBXProject;
-			attributes = {
-				LastUpgradeCheck = 1600;
-			};
-			buildConfigurationList = CE000000000000000000018 /* Build configuration list for PBXProject "IslandApp" */;
+			attributes = { LastUpgradeCheck = 1600; };
+			buildConfigurationList = 66edb9b0bf90898abb6efaf0 /* Build configuration list for PBXProject "IslandApp" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
-			knownRegions = (
-				en,
-				Base,
-			);
-			mainGroup = CE000000000000000000013 /* claude-code-island */;
-			productRefGroup = CE000000000000000000012 /* Products */;
+			knownRegions = ( en, Base, );
+			mainGroup = 1d4554f75b81c36bb0b4519c;
+			productRefGroup = ed188fddb1be76dd96f3e674 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				CE000000000000000000014 /* IslandApp */,
+				180d1f9c878506cda7960d17 /* IslandApp */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		CE000000000000000000015 /* Sources */ = {
+		584d37c2cdb997c17717eef5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CE0000000000000000000001 /* ClaudeEvent.swift in Sources */,
-				CE0000000000000000000002 /* EventStreamManager.swift in Sources */,
-				CE0000000000000000000003 /* IslandView.swift in Sources */,
-				CE0000000000000000000004 /* ApprovalView.swift in Sources */,
-				CE00000000000000000000005 /* main.swift in Sources */,
+				4a6e87d17ba5380b67f1ac18 /* ApprovalView.swift in Sources */,
+				520da4abe8d50bf4257dd418 /* ClaudeEvent.swift in Sources */,
+				82de75bdf1c0b3f97826f1ae /* EventStreamManager.swift in Sources */,
+				caf111e0d90265576513564b /* HMACSigner.swift in Sources */,
+				1e69a6723fba5ba55905c421 /* IslandView.swift in Sources */,
+				1ca01c6ce2c13c46931e9433 /* MenuBarContentView.swift in Sources */,
+				87f19e36221863ef0f3bae14 /* SettingsView.swift in Sources */,
+				d45bc543c7d823e2293f1d08 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		CE000000000000000000019 /* Debug */ = {
+		ceabe11e0d1ed409972ad93c /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
-				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -136,10 +142,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = ( "DEBUG=1", "$(inherited)", );
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -148,41 +151,34 @@
 			};
 			name = Debug;
 		};
-		CE00000000000000000001A /* Release */ = {
+		fdf44a4673920c83ca704a09 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_MODULES = YES;
-				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
-				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
-		CE00000000000000000001B /* Debug */ = {
+		feb82b2b71efb5888e41de36 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				OTHER_SWIFT_FLAGS = "-parse-as-library";
+				LD_RUNPATH_SEARCH_PATHS = ( "$(inherited)", "@executable_path/../Frameworks", );
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				PRODUCT_BUNDLE_IDENTIFIER = com.islandapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -190,21 +186,18 @@
 			};
 			name = Debug;
 		};
-		CE00000000000000000001C /* Release */ = {
+		fa2deab5220536f567a5ff26 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				OTHER_SWIFT_FLAGS = "-parse-as-library";
+				LD_RUNPATH_SEARCH_PATHS = ( "$(inherited)", "@executable_path/../Frameworks", );
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				PRODUCT_BUNDLE_IDENTIFIER = com.islandapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -215,25 +208,19 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		CE000000000000000000017 /* Build configuration list for PBXNativeTarget "IslandApp" */ = {
+		3700d96377e3f7a03c61a6a6 /* Build configuration list for PBXNativeTarget "IslandApp" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (
-				CE00000000000000000001B /* Debug */,
-				CE00000000000000000001C /* Release */,
-			);
+			buildConfigurations = ( {target_debug_conf_id} /* Debug */, {target_release_conf_id} /* Release */, );
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CE000000000000000000018 /* Build configuration list for PBXProject "IslandApp" */ = {
+		66edb9b0bf90898abb6efaf0 /* Build configuration list for PBXProject "IslandApp" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (
-				CE000000000000000000019 /* Debug */,
-				CE00000000000000000001A /* Release */,
-			);
+			buildConfigurations = ( {project_debug_conf_id} /* Debug */, {project_release_conf_id} /* Release */, );
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = CE000000000000000000015 /* Project object */;
+	rootObject = 5e0610a47f3e94012ba0b92b /* Project object */;
 }

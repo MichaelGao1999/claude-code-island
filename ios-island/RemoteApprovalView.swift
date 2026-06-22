@@ -16,45 +16,42 @@ struct RemoteApprovalView: View {
     // MARK: - Body
     
     var body: some View {
+        #if os(iOS)
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // 警告图标
-                    warningIcon
-                    
-                    // 审批标题
-                    approvalTitle
-                    
-                    // 命令摘要卡片
-                    commandSummaryCard
-                    
-                    // 风险等级指示
-                    riskLevelIndicator
-                    
-                    // 命令详情（可展开）
-                    if showDetails {
-                        commandDetailsSection
-                    }
-                    
-                    // 操作按钮
-                    actionButtons
-                    
-                    // 来源信息
-                    sourceInfo
-                }
-                .padding()
-            }
-            .navigationTitle("审批请求")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showDetails.toggle()
-                    } label: {
-                        Image(systemName: showDetails ? "eye.slash" : "eye")
+            contentView
+                .navigationTitle("审批请求")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            showDetails.toggle()
+                        } label: {
+                            Image(systemName: showDetails ? "eye.slash" : "eye")
+                        }
                     }
                 }
+        }
+        #else
+        contentView
+        #endif
+    }
+    
+    private var contentView: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                warningIcon
+                approvalTitle
+                commandSummaryCard
+                riskLevelIndicator
+                
+                if showDetails {
+                    commandDetailsSection
+                }
+                
+                actionButtons
+                sourceInfo
             }
+            .padding()
         }
     }
     

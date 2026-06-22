@@ -1,5 +1,11 @@
 import Foundation
+
+// MARK: - iOS 16.1+ 真实现
+
+#if os(iOS)
 import ActivityKit
+import UserNotifications
+import SwiftUI
 
 /// Live Activity 管理器
 /// 使用 ActivityKit 在 iOS 锁屏显示 Claude Code 状态
@@ -41,11 +47,16 @@ final class LiveActivityManager: ObservableObject {
             riskLevel: nil
         )
         
-        activity = Activity.request(
-            attributes: attributes,
-            content: .init(state: initialState, staleDate: nil),
-            pushType: nil
-        )
+        do {
+            activity = try Activity.request(
+                attributes: attributes,
+                content: .init(state: initialState, staleDate: nil),
+                pushType: nil
+            )
+        } catch {
+            print("Live Activity 请求失败: \(error)")
+            return
+        }
         
         isActive = true
         print("Live Activity 已启动: \(activity?.id ?? "unknown")")
@@ -54,7 +65,6 @@ final class LiveActivityManager: ObservableObject {
     /// 更新 Live Activity 内容
     func updateActivity(with event: ClaudeEvent) {
         guard let activity = activity else {
-            // 如果没有活动，尝试启动
             startActivity()
             return
         }
@@ -72,7 +82,6 @@ final class LiveActivityManager: ObservableObject {
             )
         }
         
-        // 如果是审批事件，显示特殊状态
         if event.type == .approvalRequired {
             showApprovalAlert(event)
         }
@@ -102,12 +111,7 @@ final class LiveActivityManager: ObservableObject {
     
     // MARK: - Private Methods
     
-    /// 显示审批提醒
     private func showApprovalAlert(_ event: ClaudeEvent) {
-        // Live Activity 本身不支持交互按钮
-        // 用户需要打开 App 来进行审批
-        // 这里可以触发本地通知提醒用户
-        
         let content = UNMutableNotificationContent()
         content.title = "需要审批"
         content.body = event.payload.commandSummary ?? "Claude Code 正在请求执行高风险操作"
@@ -124,16 +128,11 @@ final class LiveActivityManager: ObservableObject {
     }
 }
 
-// MARK: - Activity Attributes
-
 /// Live Activity 属性（静态数据）
 struct ClaudeCodeActivityAttributes: ActivityAttributes {
-    
-    /// 静态属性
     var connectionStatus: String
     var startTime: Date
     
-    /// 动态状态
     struct ContentState: Codable, Hashable {
         var eventType: String
         var taskDescription: String
@@ -142,111 +141,38 @@ struct ClaudeCodeActivityAttributes: ActivityAttributes {
     }
 }
 
-// MARK: - Live Activity Widget
-
-/// Live Activity Widget 视图（用于锁屏显示）
-/// 注意：此视图需要在 Widget Extension 中实现
-/// 这里仅作为参考示例
-@available(iOS 16.1, *)
-struct ClaudeCodeLiveActivity: Widget {
-    
-    var body: some WidgetConfiguration {
-        ActivityConfiguration(for: ClaudeCodeActivityAttributes.self) { context in
-            // 锁屏视图
-            VStack(alignment: .leading, spacing: 8) {
-                // 状态图标和类型
-                HStack(spacing: 8) {
-                    Image(systemName: "terminal")
-                        .foregroundColor(.blue)
-                    
-                    Text(context.state.eventType)
-                        .font(.system(size: 14, weight: .semibold))
-                    
-                    Spacer()
-                    
-                    // 风险等级
-                    if let riskLevel = context.state.riskLevel {
-                        Text(riskLevel)
-                            .font(.system(size: 12))
-                            .foregroundColor(.red)
-                    }
-                }
-                
-                // 任务描述
-                Text(context.state.taskDescription)
-                    .font(.system(size: 12))
-                    .lineLimit(2)
-                
-                // 进度条
-                if context.state.progress > 0 {
-                    ProgressView(value: context.state.progress, total: 1.0)
-                        .progressViewStyle(.linear)
-                        .tint(.green)
-                }
-            }
-            .padding()
-            
-        } dynamicIsland: { context in
-            // Dynamic Island 视图
-            DynamicIsland {
-                // Expanded 视图
-                DynamicIslandExpandedRegion(.leading) {
-                    Image(systemName: "terminal")
-                        .foregroundColor(.blue)
-                }
-                
-                DynamicIslandExpandedRegion(.trailing) {
-                    Text("\(Int(context.state.progress * 100))%")
-                        .font(.system(size: 12))
-                }
-                
-                DynamicIslandExpandedRegion(.center) {
-                    Text(context.state.eventType)
-                        .font(.system(size: 14, weight: .semibold))
-                }
-                
-                DynamicIslandExpandedRegion(.bottom) {
-                    Text(context.state.taskDescription)
-                        .font(.system(size: 12))
-                        .lineLimit(1)
-                }
-                
-            } compactLeading: {
-                // Compact Leading 视图
-                Image(systemName: "terminal")
-                    .foregroundColor(.blue)
-                
-            } compactTrailing: {
-                // Compact Trailing 视图
-                Text(context.state.eventType)
-                    .font(.system(size: 10))
-                
-            } minimal: {
-                // Minimal 视图
-                Image(systemName: "terminal")
-                    .foregroundColor(.blue)
-            }
-        }
-    }
-}
-
-// MARK: - iOS 16.1 以下版本兼容
-
-/// iOS 16.1 以下版本的空实现
+/// iOS 16.1 以下版本兼容
 @available(iOS, introduced: 16.0, deprecated: 16.1, message: "Use LiveActivityManager instead")
 final class LegacyActivityManager: ObservableObject {
-    
     static let shared = LegacyActivityManager()
     
     func startActivity() {
         print("Live Activity 需要 iOS 16.1+")
     }
     
-    func updateActivity(with event: ClaudeEvent) {
-        // 不支持
-    }
+    func updateActivity(with event: ClaudeEvent) {}
     
-    func endActivity() {
-        // 不支持
-    }
+    func endActivity() {}
 }
+
+#endif
+
+// MARK: - macOS CLI / 非 iOS 环境存根
+
+#if !os(iOS)
+final class LiveActivityManager: ObservableObject {
+    static let shared = LiveActivityManager()
+    @Published var isActive: Bool = false
+    private init() {}
+    func startActivity() { print("[存根] LiveActivityManager.startActivity") }
+    func updateActivity(with event: ClaudeEvent) {}
+    func endActivity() { print("[存根] LiveActivityManager.endActivity") }
+}
+
+final class LegacyActivityManager: ObservableObject {
+    static let shared = LegacyActivityManager()
+    func startActivity() { print("[存根] LegacyActivityManager.startActivity") }
+    func updateActivity(with event: ClaudeEvent) {}
+    func endActivity() {}
+}
+#endif

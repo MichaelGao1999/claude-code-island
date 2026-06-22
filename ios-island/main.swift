@@ -10,32 +10,26 @@ struct iOSCompanionApp: App {
     // MARK: - State
     
     @StateObject private var bridge = WebSocketBridge()
-    @StateObject private var activityManager: ActivityManagerProtocol
-    
-    // MARK: - Initialization
-    
-    init() {
-        // 根据系统版本选择合适的 ActivityManager
-        if #available(iOS 16.1, *) {
-            _activityManager = StateObject(wrappedValue: LiveActivityManager.shared)
-        } else {
-            _activityManager = StateObject(wrappedValue: LegacyActivityManager.shared)
-        }
-    }
     
     // MARK: - Scene
     
     var body: some Scene {
+        #if os(iOS)
         WindowGroup {
             ContentView(bridge: bridge)
                 .onAppear {
-                    // 自动连接
                     bridge.connect()
-                    
-                    // 启动 Live Activity
-                    activityManager.startActivity()
+                    LiveActivityManager.shared.startActivity()
                 }
         }
+        #else
+        WindowGroup {
+            ContentView(bridge: bridge)
+                .onAppear {
+                    bridge.connect()
+                }
+        }
+        #endif
     }
 }
 
@@ -48,51 +42,55 @@ struct ContentView: View {
     @State private var showApprovalSheet: Bool = false
     
     var body: some View {
+        #if os(iOS)
         NavigationStack {
-            VStack(spacing: 20) {
-                // 连接状态
-                connectionStatusView
-                
-                // 当前事件
-                if let event = bridge.currentEvent {
-                    currentEventView(event)
-                } else {
-                    waitingView
-                }
-                
-                // 事件历史
-                if !bridge.eventHistory.isEmpty {
-                    eventHistoryView
-                }
-                
-                Spacer()
-                
-                // 操作按钮
-                actionButtons
+            contentView
+                .navigationTitle("Claude Code Island")
+        }
+        #else
+        contentView
+        #endif
+    }
+    
+    private var contentView: some View {
+        VStack(spacing: 20) {
+            connectionStatusView
+            
+            if let event = bridge.currentEvent {
+                currentEventView(event)
+            } else {
+                waitingView
             }
-            .padding()
-            .navigationTitle("Claude Code Island")
-            .sheet(isPresented: $showApprovalSheet) {
-                if let event = bridge.currentEvent,
-                   event.type == .approvalRequired {
-                    RemoteApprovalView(
-                        approvalInfo: ApprovalInfo(from: event),
-                        onApprove: {
-                            bridge.sendApprovalResponse(
-                                eventId: ApprovalInfo(from: event).eventId,
-                                approved: true
-                            )
-                            showApprovalSheet = false
-                        },
-                        onReject: {
-                            bridge.sendApprovalResponse(
-                                eventId: ApprovalInfo(from: event).eventId,
-                                approved: false
-                            )
-                            showApprovalSheet = false
-                        }
-                    )
-                }
+            
+            if !bridge.eventHistory.isEmpty {
+                eventHistoryView
+            }
+            
+            Spacer()
+            
+            actionButtons
+        }
+        .padding()
+        .sheet(isPresented: $showApprovalSheet) {
+            if let event = bridge.currentEvent,
+               event.type == .approvalRequired {
+                RemoteApprovalView(
+                    approvalInfo: ApprovalInfo(from: event),
+                    onApprove: {
+                        bridge.sendApprovalResponse(
+                            eventId: ApprovalInfo(from: event).eventId,
+                            approved: true
+                        )
+                        showApprovalSheet = false
+                    },
+                    onReject: {
+                        bridge.sendApprovalResponse(
+                            eventId: ApprovalInfo(from: event).eventId,
+                            approved: false
+                        )
+                        showApprovalSheet = false
+                    }
+                )
             }
         }
     }

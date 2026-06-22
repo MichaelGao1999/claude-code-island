@@ -57,6 +57,7 @@ claude-code-island/
 │   ├── EventStreamManager.swift    # WebSocket 客户端
 │   ├── IslandView.swift            # 菜单栏 UI
 │   ├── ApprovalView.swift          # 审批弹窗
+│   ├── HMACSigner.swift            # HMAC 安全签名
 │   ├── main.swift                  # App 入口
 │   └── IslandApp.xcodeproj/        # Xcode 项目
 │
@@ -71,10 +72,14 @@ claude-code-island/
 │   ├── IslandAppTests.swift        # macOS 测试
 │   └── iOSCompanionTests.swift     # iOS 测试
 │
+├── tools/                          # 工具
+│   └── trae-loop/                  # 编排器
+│       ├── trae-loop.py            # 主入口
+│       ├── lib/                    # Python 模块
+│       ├── tests/                  # 测试
+│       └── execution-templates/    # 执行模板
+│
 ├── WebSocketMockServer.swift       # Mock 服务器（测试）
-│
-├── HMACSigner.swift                # 安全签名模块
-│
 ├── README.md                       # 本文件
 ├── verification-report.md          # 验证报告
 └── PATCH-CANDIDATES.md             # 补丁候选清单

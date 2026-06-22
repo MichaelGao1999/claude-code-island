@@ -1,0 +1,51 @@
+{
+  "projectName": "claude-code-island",
+  "version": "1.0",
+  "currentPhase": "done",
+  "status": "running",
+  "history": [
+    {
+      "phase": "init",
+      "attempt": 1,
+      "status": "completed",
+      "output": null,
+      "confirmed": true,
+      "confirmedAt": "2026-06-21T12:53:25Z"
+    },
+    {
+      "phase": "init",
+      "attempt": 1,
+      "status": "completed",
+      "output": "environment check passed",
+      "confirmed": true,
+      "confirmedAt": "2026-06-21T12:53:25Z"
+    },
+    {
+      "phase": "scoping",
+      "attempt": 1,
+      "status": "completed",
+      "output": "scoping complete",
+      "confirmed": true,
+      "confirmedAt": "2026-06-21T12:53:25Z"
+    },
+    {
+      "phase": "executing",
+      "attempt": 1,
+      "status": "completed",
+      "output": "all artifacts complete",
+      "confirmed": true,
+      "confirmedAt": "2026-06-21T13:27:36Z"
+    }
+  ],
+  "currentAttempt": 1,
+  "maxAttempts": 2,
+  "artifacts": {
+    "scoping": "scoping complete",
+    "executing": "all artifacts complete",
+    "init": "environment check passed"
+  },
+  "errors": [],
+  "startedAt": "2026-06-21T12:53:25Z",
+  "updatedAt": "2026-06-21T13:27:36Z",
+  "__env_checked": true
+}

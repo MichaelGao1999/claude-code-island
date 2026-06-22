@@ -1,224 +1,332 @@
 import SwiftUI
-import WidgetKit
-import ActivityKit
 
-// MARK: - Main App
+// MARK: - App Entry Point
 
+/// Claude Code Island iOS 伴侣应用入口
+/// 提供 Live Activity 和远程审批功能
 @main
-struct ClaudeCodeIslandApp: App {
-    @StateObject private var webSocketBridge = WebSocketBridge()
-    @StateObject private var liveActivityManager = LiveActivityManager()
-    @Environment(\.scenePhase) private var scenePhase
-
+struct iOSCompanionApp: App {
+    
+    // MARK: - State
+    
+    @StateObject private var bridge = WebSocketBridge()
+    @StateObject private var activityManager: ActivityManagerProtocol
+    
+    // MARK: - Initialization
+    
     init() {
-        print("[App] ClaudeCodeIsland initializing...")
+        // 根据系统版本选择合适的 ActivityManager
+        if #available(iOS 16.1, *) {
+            _activityManager = StateObject(wrappedValue: LiveActivityManager.shared)
+        } else {
+            _activityManager = StateObject(wrappedValue: LegacyActivityManager.shared)
+        }
     }
-
+    
+    // MARK: - Scene
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(webSocketBridge)
-                .environmentObject(liveActivityManager)
+            ContentView(bridge: bridge)
                 .onAppear {
-                    setupApp()
+                    // 自动连接
+                    bridge.connect()
+                    
+                    // 启动 Live Activity
+                    activityManager.startActivity()
                 }
-                .onChange(of: scenePhase) { _, newPhase in
-                    handleScenePhaseChange(newPhase)
-                }
-        }
-    }
-
-    // MARK: - Setup
-
-    private func setupApp() {
-        print("[App] Setting up app...")
-        connectWebSocket()
-        checkLiveActivitySupport()
-    }
-
-    private func connectWebSocket() {
-        print("[App] Connecting to WebSocket bridge...")
-        webSocketBridge.connect()
-    }
-
-    private func checkLiveActivitySupport() {
-        if #available(iOS 16.1, *) {
-            let enabled = ActivityAuthorizationInfo().areActivitiesEnabled
-            print("[App] Live Activities enabled: \(enabled)")
-            if !enabled {
-                print("[App] Warning: Live Activities are disabled in Settings")
-            }
-        } else {
-            print("[App] Live Activities not supported on this iOS version")
-        }
-    }
-
-    // MARK: - Scene Phase Handling
-
-    private func handleScenePhaseChange(_ phase: ScenePhase) {
-        switch phase {
-        case .active:
-            print("[App] Scene phase: active")
-            if !webSocketBridge.isConnected {
-                webSocketBridge.connect()
-            }
-
-        case .inactive:
-            print("[App] Scene phase: inactive")
-
-        case .background:
-            print("[App] Scene phase: background")
-            webSocketBridge.disconnect()
-
-        @unknown default:
-            break
         }
     }
 }
 
 // MARK: - Content View
 
+/// 主内容视图
 struct ContentView: View {
-    @EnvironmentObject var webSocketBridge: WebSocketBridge
-    @EnvironmentObject var liveActivityManager: LiveActivityManager
-    @State private var showingSettings: Bool = false
-
+    
+    @ObservedObject var bridge: WebSocketBridge
+    @State private var showApprovalSheet: Bool = false
+    
     var body: some View {
-        VStack(spacing: 0) {
-            statusCard
-            RemoteApprovalView(
-                webSocketBridge: webSocketBridge,
-                liveActivityManager: liveActivityManager
-            )
-        }
-        .sheet(isPresented: $showingSettings) {
-            SettingsView(webSocketBridge: webSocketBridge)
+        NavigationStack {
+            VStack(spacing: 20) {
+                // 连接状态
+                connectionStatusView
+                
+                // 当前事件
+                if let event = bridge.currentEvent {
+                    currentEventView(event)
+                } else {
+                    waitingView
+                }
+                
+                // 事件历史
+                if !bridge.eventHistory.isEmpty {
+                    eventHistoryView
+                }
+                
+                Spacer()
+                
+                // 操作按钮
+                actionButtons
+            }
+            .padding()
+            .navigationTitle("Claude Code Island")
+            .sheet(isPresented: $showApprovalSheet) {
+                if let event = bridge.currentEvent,
+                   event.type == .approvalRequired {
+                    RemoteApprovalView(
+                        approvalInfo: ApprovalInfo(from: event),
+                        onApprove: {
+                            bridge.sendApprovalResponse(
+                                eventId: ApprovalInfo(from: event).eventId,
+                                approved: true
+                            )
+                            showApprovalSheet = false
+                        },
+                        onReject: {
+                            bridge.sendApprovalResponse(
+                                eventId: ApprovalInfo(from: event).eventId,
+                                approved: false
+                            )
+                            showApprovalSheet = false
+                        }
+                    )
+                }
+            }
         }
     }
-
-    // MARK: - Status Card
-
-    private var statusCard: some View {
-        VStack(spacing: 12) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Claude Code Island")
-                        .font(.headline)
-                        .foregroundColor(.primary)
-
-                    Text(statusText)
-                        .font(.caption)
+    
+    // MARK: - Connection Status View
+    
+    private var connectionStatusView: some View {
+        HStack(spacing: 12) {
+            // 状态图标
+            ZStack {
+                Circle()
+                    .fill(bridge.isConnected ? Color.green : Color.red)
+                    .frame(width: 40, height: 40)
+                
+                Image(systemName: bridge.isConnected ? "wifi" : "wifi.slash")
+                    .foregroundColor(.white)
+                    .font(.system(size: 18))
+            }
+            
+            // 状态文本
+            VStack(alignment: .leading, spacing: 4) {
+                Text(bridge.isConnected ? "已连接" : "未连接")
+                    .font(.system(size: 16, weight: .semibold))
+                
+                Text("Mac Relay")
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            // 事件计数
+            VStack(alignment: .trailing, spacing: 4) {
+                Text("\(bridge.eventHistory.count)")
+                    .font(.system(size: 20, weight: .bold))
+                
+                Text("事件")
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.secondary.opacity(0.1))
+        )
+    }
+    
+    // MARK: - Current Event View
+    
+    private func currentEventView(_ event: ClaudeEvent) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // 事件类型标题
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(statusColor(for: event.type))
+                    .frame(width: 12, height: 12)
+                
+                Text(event.type.displayName)
+                    .font(.system(size: 18, weight: .semibold))
+                
+                Spacer()
+                
+                Text(timeAgoString(from: event.receivedAt))
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+            }
+            
+            // 任务描述
+            if let description = event.payload.taskDescription {
+                Text(description)
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+            }
+            
+            // 进度条
+            if let progress = event.payload.progress {
+                VStack(alignment: .leading, spacing: 8) {
+                    ProgressView(value: progress, total: 1.0)
+                        .progressViewStyle(.linear)
+                        .tint(.green)
+                    
+                    Text("\(Int(progress * 100))% 完成")
+                        .font(.system(size: 12))
                         .foregroundColor(.secondary)
                 }
-
-                Spacer()
-
-                connectionIndicator
             }
-
-            if let error = webSocketBridge.lastError {
-                HStack {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(.orange)
-                    Text(error)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Spacer()
+            
+            // 审批按钮
+            if event.type == .approvalRequired {
+                Button {
+                    showApprovalSheet = true
+                } label: {
+                    Text("查看审批请求")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.red)
+                        )
                 }
             }
         }
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-    }
-
-    private var statusText: String {
-        if webSocketBridge.isConnected {
-            return "正在监听审批请求"
-        } else {
-            return "未连接到服务器"
-        }
-    }
-
-    private var connectionIndicator: some View {
-        HStack(spacing: 6) {
-            Circle()
-                .fill(webSocketBridge.isConnected ? Color.green : Color.red)
-                .frame(width: 10, height: 10)
-
-            Text(webSocketBridge.isConnected ? "在线" : "离线")
-                .font(.caption)
-                .foregroundColor(webSocketBridge.isConnected ? .green : .red)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
         .background(
-            (webSocketBridge.isConnected ? Color.green : Color.red)
-                .opacity(0.1)
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.secondary.opacity(0.1))
         )
-        .cornerRadius(8)
     }
-}
-
-// MARK: - Settings View
-
-struct SettingsView: View {
-    @ObservedObject var webSocketBridge: WebSocketBridge
-    @Environment(\.dismiss) private var dismiss
-    @State private var host: String = "localhost"
-    @State private var port: String = "8080"
-
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section("服务器配置") {
-                    TextField("主机地址", text: $host)
-                        .textContentType(.URL)
-                        .autocapitalization(.none)
-
-                    TextField("端口", text: $port)
-                        .keyboardType(.numberPad)
-                }
-
-                Section {
-                    Button("保存并重连") {
-                        saveAndReconnect()
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-            }
-            .navigationTitle("设置")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") {
-                        dismiss()
-                    }
-                }
-            }
-            .onAppear {
-                loadCurrentSettings()
-            }
+    
+    private func statusColor(for type: EventType) -> Color {
+        switch type {
+        case .thinking: return .blue
+        case .coding: return .green
+        case .waiting: return .orange
+        case .approvalRequired: return .red
+        case .approved: return .green
+        case .rejected: return .red
+        case .error: return .red
+        case .connected: return .green
+        case .disconnected: return .gray
         }
     }
-
-    private func loadCurrentSettings() {
-        // Settings would be loaded from UserDefaults in production
-        // For now, keep default values
+    
+    // MARK: - Waiting View
+    
+    private var waitingView: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .scaleEffect(1.5)
+            
+            Text("等待 Claude Code...")
+                .font(.system(size: 16))
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 150)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.secondary.opacity(0.1))
+        )
     }
-
-    private func saveAndReconnect() {
-        guard let portInt = Int(port) else { return }
-        webSocketBridge.updateConnection(host: host, port: portInt)
-        dismiss()
+    
+    // MARK: - Event History View
+    
+    private var eventHistoryView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("最近事件")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.secondary)
+            
+            ForEach(bridge.eventHistory.suffix(5)) { event in
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(statusColor(for: event.type))
+                        .frame(width: 8, height: 8)
+                    
+                    Text(event.type.displayName)
+                        .font(.system(size: 12))
+                    
+                    Spacer()
+                    
+                    Text(timeAgoString(from: event.receivedAt))
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.secondary.opacity(0.1))
+        )
+    }
+    
+    // MARK: - Action Buttons
+    
+    private var actionButtons: some View {
+        HStack(spacing: 16) {
+            // 连接/断开
+            Button {
+                if bridge.isConnected {
+                    bridge.disconnect()
+                } else {
+                    bridge.connect()
+                }
+            } label: {
+                Label(
+                    bridge.isConnected ? "断开" : "连接",
+                    systemImage: bridge.isConnected ? "wifi.slash" : "wifi"
+                )
+                .font(.system(size: 14))
+            }
+            .buttonStyle(.bordered)
+            
+            // Mock 模式
+            Button {
+                bridge.enableMockMode()
+            } label: {
+                Label("Mock", systemImage: "wand.and.stars")
+                    .font(.system(size: 14))
+            }
+            .buttonStyle(.bordered)
+        }
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func timeAgoString(from date: Date) -> String {
+        let interval = Date().timeIntervalSince(date)
+        
+        if interval < 60 {
+            return "刚刚"
+        } else if interval < 3600 {
+            return "\(Int(interval / 60))分钟前"
+        } else {
+            return "\(Int(interval / 3600))小时前"
+        }
     }
 }
 
-// MARK: - Widget Trigger (Placeholder)
+// MARK: - Activity Manager Protocol
 
-struct WidgetTrigger {
-    static func startLiveActivity(task: String, status: String) {
-        // This would be called from a Widget Extension
-        // Currently placeholder for WidgetCenter integration
-        print("[Widget] Would start Live Activity for: \(task)")
-    }
+/// ActivityManager 协议，用于版本兼容
+protocol ActivityManagerProtocol: ObservableObject {
+    func startActivity()
+    func updateActivity(with event: ClaudeEvent)
+    func endActivity()
+}
+
+// MARK: - Preview
+
+#Preview {
+    ContentView(bridge: WebSocketBridge())
 }

@@ -1,220 +1,258 @@
 import SwiftUI
 
-// MARK: - ApprovalView
-
+/// 审批弹窗视图
+/// 显示需要用户确认的高风险操作，支持键盘快捷键和点击操作
 struct ApprovalView: View {
-    @ObservedObject var manager: EventStreamManager
-    @Binding var isPresented: Bool
-    @State private var showInspectDetail = false
-
-    private var approvalInfo: ApprovalInfo? {
-        manager.pendingApproval
-    }
-
+    
+    // MARK: - Properties
+    
+    let approvalInfo: ApprovalInfo
+    let onApprove: () -> Void
+    let onReject: () -> Void
+    
+    @State private var isInspecting: Bool = false
+    @FocusState private var isFocused: Bool
+    
+    // MARK: - Body
+    
     var body: some View {
-        VStack(spacing: 0) {
-            headerSection
-
-            Divider()
-
-            if showInspectDetail {
-                inspectDetailSection
-            } else {
-                commandSummarySection
-            }
-
-            Divider()
-
-            actionButtons
-        }
-        .frame(minWidth: 420, maxWidth: 480)
-        .background(Color(nsColor: .windowBackgroundColor))
-        .overlay {
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.red.opacity(approvalInfo?.riskLevel == .critical ? 0.5 : 0), lineWidth: 2)
-        }
-    }
-
-    // MARK: - Header Section
-
-    private var headerSection: some View {
-        HStack {
-            Image(systemName: "exclamationmark.shield.fill")
-                .font(.system(size: 20))
-                .foregroundStyle(riskLevelColor)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("命令审批请求")
-                    .font(.system(size: 15, weight: .semibold))
-
-                Text(riskLevelText)
-                    .font(.system(size: 12))
-                    .foregroundStyle(riskLevelColor)
-            }
-
-            Spacer()
-
-            Button(action: { dismiss() }) {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 18))
-                    .foregroundStyle(.secondary)
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(16)
-    }
-
-    // MARK: - Command Summary Section
-
-    private var commandSummarySection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(spacing: 16) {
+            // 标题
+            headerView
+            
             // 命令摘要
-            VStack(alignment: .leading, spacing: 6) {
-                Text("命令摘要")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.secondary)
-
-                Text(highlightedCommand)
-                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+            commandSummaryView
+            
+            // 风险等级
+            riskLevelView
+            
+            // 命令详情（可展开）
+            if isInspecting {
+                commandDetailsView
+            }
+            
+            // 操作按钮
+            actionButtons
+            
+            // 键盘快捷键提示
+            keyboardHints
+        }
+        .padding(24)
+        .frame(width: 400)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.ultraThinMaterial)
+                .shadow(radius: 8)
+        )
+        .focused($isFocused)
+        .onKeyPress(.return) {
+            onApprove()
+            return .handled
+        }
+        .onKeyPress(.escape) {
+            onReject()
+            return .handled
+        }
+        .onKeyPress("i") {
+            isInspecting.toggle()
+            return .handled
+        }
+    }
+    
+    // MARK: - Header View
+    
+    private var headerView: some View {
+        HStack(spacing: 12) {
+            // 警告图标
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 28))
+                .foregroundColor(riskLevelColor(approvalInfo.riskLevel))
+            
+            // 标题
+            VStack(alignment: .leading, spacing: 4) {
+                Text("需要审批")
+                    .font(.system(size: 18, weight: .bold))
+                
+                Text("Claude Code 正在请求执行高风险操作")
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+        }
+    }
+    
+    // MARK: - Command Summary View
+    
+    private var commandSummaryView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("命令摘要")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.secondary)
+            
+            Text(approvalInfo.commandSummary)
+                .font(.system(size: 14, weight: .medium))
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.secondary.opacity(0.1))
+                )
+        }
+    }
+    
+    // MARK: - Risk Level View
+    
+    private var riskLevelView: some View {
+        HStack(spacing: 8) {
+            // 风险等级标签
+            HStack(spacing: 4) {
+                Image(systemName: "shield.fill")
+                    .font(.system(size: 14))
+                
+                Text(approvalInfo.riskLevel.displayName)
+                    .font(.system(size: 13, weight: .medium))
+            }
+            .foregroundColor(riskLevelColor(approvalInfo.riskLevel))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(
+                Capsule()
+                    .fill(riskLevelColor(approvalInfo.riskLevel).opacity(0.2))
+            )
+            
+            Spacer()
+            
+            // 风险描述
+            Text(riskDescription)
+                .font(.system(size: 11))
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    private var riskDescription: String {
+        switch approvalInfo.riskLevel {
+        case .low:
+            return "低风险操作，通常安全"
+        case .medium:
+            return "中等风险，建议检查"
+        case .high:
+            return "高风险操作，请仔细审查"
+        case .critical:
+            return "严重风险，可能导致不可逆后果"
+        }
+    }
+    
+    // MARK: - Command Details View
+    
+    private var commandDetailsView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("完整命令")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.secondary)
+            
+            ScrollView {
+                Text(approvalInfo.rawCommand)
+                    .font(.system(size: 12, design: .monospaced))
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(nsColor: .textBackgroundColor))
-                    .cornerRadius(6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.secondary.opacity(0.1))
+                    )
             }
-
-            // 命令详情
-            if let details = approvalInfo?.commandDetails, !details.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("详细说明")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(.secondary)
-
-                    Text(details)
-                        .font(.system(size: 13))
-                        .foregroundStyle(.primary)
-                }
-            }
-
-            // 风险提示
-            if approvalInfo?.riskLevel == .high || approvalInfo?.riskLevel == .critical {
-                riskWarningBanner
-            }
+            .frame(maxHeight: 120)
+            
+            Text(approvalInfo.commandDetails)
+                .font(.system(size: 12))
+                .foregroundColor(.secondary)
+                .lineLimit(3)
         }
-        .padding(16)
+        .transition(.opacity.combined(with: .move(edge: .top)))
     }
-
-    // MARK: - Inspect Detail Section
-
-    private var inspectDetailSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("完整命令")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.secondary)
-
-                Spacer()
-
-                Button("返回") {
-                    showInspectDetail = false
-                }
-                .font(.system(size: 11))
-            }
-
-            ScrollView {
-                Text(approvalInfo?.rawCommand ?? "")
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundStyle(.primary)
-                    .textSelection(.enabled)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .frame(maxHeight: 200)
-            .padding(12)
-            .background(Color(nsColor: .textBackgroundColor))
-            .cornerRadius(6)
-        }
-        .padding(16)
-    }
-
-    // MARK: - Risk Warning Banner
-
-    private var riskWarningBanner: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 16))
-                .foregroundStyle(.white)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("危险操作警告")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.white)
-
-                Text(warningMessage)
-                    .font(.system(size: 11))
-                    .foregroundStyle(.white.opacity(0.9))
-            }
-
-            Spacer()
-        }
-        .padding(12)
-        .background(
-            LinearGradient(
-                colors: [Color.red.opacity(0.9), Color.red.opacity(0.7)],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-        )
-        .cornerRadius(8)
-    }
-
+    
     // MARK: - Action Buttons
-
+    
     private var actionButtons: some View {
         HStack(spacing: 12) {
-            // Inspect 按钮
-            Button(action: { showInspectDetail.toggle() }) {
+            // 检查按钮
+            Button {
+                isInspecting.toggle()
+            } label: {
                 HStack(spacing: 4) {
-                    Image(systemName: "doc.text.magnifyingglass")
-                    Text(showInspectDetail ? "收起详情" : "检查详情")
+                    Image(systemName: isInspecting ? "eye.slash" : "eye")
+                    Text(isInspecting ? "隐藏详情" : "检查详情")
                 }
-                .font(.system(size: 13, weight: .medium))
+                .font(.system(size: 13))
             }
             .buttonStyle(.bordered)
-            .keyboardShortcut("i", modifiers: .command)
-
+            
             Spacer()
-
-            // Reject 按钮
-            Button(action: { reject() }) {
+            
+            // 拒绝按钮
+            Button {
+                onReject()
+            } label: {
                 HStack(spacing: 4) {
                     Image(systemName: "xmark")
                     Text("拒绝")
                 }
                 .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(.red)
+                .foregroundColor(.red)
             }
             .buttonStyle(.bordered)
-            .keyboardShortcut(.escape, modifiers: [])
-
-            // Approve 按钮
-            Button(action: { approve() }) {
+            
+            // 批准按钮
+            Button {
+                onApprove()
+            } label: {
                 HStack(spacing: 4) {
                     Image(systemName: "checkmark")
                     Text("批准")
                 }
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(.white)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(.white)
             }
             .buttonStyle(.borderedProminent)
-            .tint(.green)
-            .keyboardShortcut(.return, modifiers: [])
         }
-        .padding(16)
     }
-
-    // MARK: - Helpers
-
-    private var riskLevelColor: Color {
-        guard let level = approvalInfo?.riskLevel else { return .gray }
+    
+    // MARK: - Keyboard Hints
+    
+    private var keyboardHints: some View {
+        HStack(spacing: 16) {
+            keyboardHint("Enter", "批准")
+            keyboardHint("Esc", "拒绝")
+            keyboardHint("I", "检查")
+            
+            Spacer()
+            
+            Text("Event ID: \(approvalInfo.eventId)")
+                .font(.system(size: 10, design: .monospaced))
+                .foregroundColor(.secondary.opacity(0.6))
+        }
+    }
+    
+    private func keyboardHint(_ key: String, _ action: String) -> some View {
+        HStack(spacing: 4) {
+            Text(key)
+                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color.secondary.opacity(0.2))
+                )
+            
+            Text(action)
+                .font(.system(size: 10))
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func riskLevelColor(_ level: RiskLevel) -> Color {
         switch level {
         case .low: return .green
         case .medium: return .orange
@@ -222,100 +260,20 @@ struct ApprovalView: View {
         case .critical: return .purple
         }
     }
-
-    private var riskLevelText: String {
-        approvalInfo?.riskLevel.displayName ?? "未知风险"
-    }
-
-    private var warningMessage: String {
-        guard let level = approvalInfo?.riskLevel else { return "" }
-        switch level {
-        case .high:
-            return "此命令可能会修改或删除重要文件，请仔细检查后再操作"
-        case .critical:
-            return "极高风险操作！可能会对系统造成不可逆的损害"
-        default:
-            return ""
-        }
-    }
-
-    private var highlightedCommand: AttributedString {
-        guard let summary = approvalInfo?.commandSummary else {
-            return AttributedString("")
-        }
-
-        var attributed = AttributedString(summary)
-
-        // 高亮危险关键词
-        let dangerKeywords = ["rm", "delete", "drop", "truncate", "shutdown", "reboot", "mkfs", "dd"]
-
-        for keyword in dangerKeywords {
-            if let range = attributed.range(of: keyword, options: .caseInsensitive) {
-                attributed[range].foregroundColor = .red
-                attributed[range].font = .system(size: 13, weight: .bold, design: .monospaced)
-            }
-        }
-
-        return attributed
-    }
-
-    // MARK: - Actions
-
-    private func approve() {
-        guard let eventId = approvalInfo?.eventId else { return }
-        manager.sendApproval(eventId: eventId, approved: true)
-        dismiss()
-    }
-
-    private func reject() {
-        guard let eventId = approvalInfo?.eventId else { return }
-        manager.sendApproval(eventId: eventId, approved: false)
-        dismiss()
-    }
-
-    private func dismiss() {
-        isPresented = false
-    }
-}
-
-// MARK: - ApprovalView Representable
-
-struct ApprovalViewRepresentable: UIViewControllerRepresentable {
-    @ObservedObject var manager: EventStreamManager
-    @Binding var isPresented: Bool
-
-    func makeUIViewController(context: Context) -> ApprovalHostingController {
-        ApprovalHostingController(manager: manager, isPresented: $isPresented)
-    }
-
-    func updateUIViewController(_ uiViewController: ApprovalHostingController, context: Context) {
-        uiViewController.updateContent()
-    }
-}
-
-class ApprovalHostingController: UIHostingController<ApprovalView> {
-    private var isPresentedBinding: Binding<Bool>
-
-    init(manager: EventStreamManager, isPresented: Binding<Bool>) {
-        self.isPresentedBinding = isPresented
-        super.init(rootView: ApprovalView(manager: manager, isPresented: isPresentedBinding))
-    }
-
-    @MainActor required dynamic init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    func updateContent() {
-        rootView = ApprovalView(manager: EventStreamManager.shared, isPresented: isPresentedBinding)
-    }
 }
 
 // MARK: - Preview
 
 #Preview {
-    let manager = EventStreamManager.shared
-    manager.addMockApprovalEvent()
-
-    return ApprovalView(manager: manager, isPresented: .constant(true))
-        .frame(width: 480, height: 320)
+    ApprovalView(
+        approvalInfo: ApprovalInfo(
+            eventId: "evt_abc123",
+            commandSummary: "rm -rf ./node_modules",
+            commandDetails: "删除整个 node_modules 目录及其所有依赖包",
+            riskLevel: .high,
+            rawCommand: "rm -rf ./node_modules"
+        ),
+        onApprove: { print("Approved") },
+        onReject: { print("Rejected") }
+    )
 }

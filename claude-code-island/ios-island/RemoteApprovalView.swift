@@ -1,288 +1,276 @@
 import SwiftUI
-import WidgetKit
 
-// MARK: - Risk Level
-
-enum RiskLevel: String, CaseIterable {
-    case low = "low"
-    case medium = "medium"
-    case high = "high"
-    case critical = "critical"
-
-    var color: Color {
-        switch self {
-        case .low:
-            return .green
-        case .medium:
-            return .yellow
-        case .high:
-            return .orange
-        case .critical:
-            return .red
-        }
-    }
-
-    var label: String {
-        switch self {
-        case .low:
-            return "低风险"
-        case .medium:
-            return "中等风险"
-        case .high:
-            return "高风险"
-        case .critical:
-            return "极高风险"
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .low:
-            return "shield.checkered"
-        case .medium:
-            return "exclamationmark.triangle"
-        case .high:
-            return "exclamationmark.octagon"
-        case .critical:
-            return "xmark.octagon.fill"
-        }
-    }
-
-    static func from(string: String?) -> RiskLevel {
-        guard let string = string?.lowercased() else { return .low }
-        return RiskLevel(rawValue: string) ?? .low
-    }
-}
-
-// MARK: - Remote Approval View
-
+/// 远程审批视图
+/// 在 iOS App 中显示审批请求，支持 Approve/Reject 操作
 struct RemoteApprovalView: View {
-    @ObservedObject var webSocketBridge: WebSocketBridge
-    @ObservedObject var liveActivityManager: LiveActivityManager
-    @State private var showingApprovalSheet: Bool = false
-    @State private var pendingEvent: ClaudeEvent?
-
+    
+    // MARK: - Properties
+    
+    let approvalInfo: ApprovalInfo
+    let onApprove: () -> Void
+    let onReject: () -> Void
+    
+    @State private var showDetails: Bool = false
+    @State private var isProcessing: Bool = false
+    
+    // MARK: - Body
+    
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    connectionStatusCard
-
-                    if let event = webSocketBridge.currentEvent {
-                        approvalCard(for: event)
-                    } else {
-                        emptyStateView
+                    // 警告图标
+                    warningIcon
+                    
+                    // 审批标题
+                    approvalTitle
+                    
+                    // 命令摘要卡片
+                    commandSummaryCard
+                    
+                    // 风险等级指示
+                    riskLevelIndicator
+                    
+                    // 命令详情（可展开）
+                    if showDetails {
+                        commandDetailsSection
                     }
+                    
+                    // 操作按钮
+                    actionButtons
+                    
+                    // 来源信息
+                    sourceInfo
                 }
                 .padding()
             }
-            .navigationTitle("远程审批")
-            .navigationBarTitleDisplayMode(.large)
-            .background(Color(.systemGroupedBackground))
-        }
-    }
-
-    // MARK: - Connection Status Card
-
-    private var connectionStatusCard: some View {
-        HStack(spacing: 12) {
-            Circle()
-                .fill(webSocketBridge.isConnected ? Color.green : Color.red)
-                .frame(width: 12, height: 12)
-
-            Text(webSocketBridge.isConnected ? "已连接" : "未连接")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-
-            Spacer()
-
-            if !webSocketBridge.isConnected {
-                Button("重连") {
-                    webSocketBridge.connect()
+            .navigationTitle("审批请求")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showDetails.toggle()
+                    } label: {
+                        Image(systemName: showDetails ? "eye.slash" : "eye")
+                    }
                 }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
             }
         }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(12)
     }
-
-    // MARK: - Empty State
-
-    private var emptyStateView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "bell.slash")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary)
-
-            Text("暂无待审批命令")
-                .font(.headline)
-                .foregroundColor(.secondary)
-
-            Text("当有需要审批的命令时，将在此显示")
-                .font(.subheadline)
+    
+    // MARK: - Warning Icon
+    
+    private var warningIcon: some View {
+        ZStack {
+            Circle()
+                .fill(riskLevelColor(approvalInfo.riskLevel).opacity(0.2))
+                .frame(width: 80, height: 80)
+            
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 36))
+                .foregroundColor(riskLevelColor(approvalInfo.riskLevel))
+        }
+    }
+    
+    // MARK: - Approval Title
+    
+    private var approvalTitle: some View {
+        VStack(spacing: 8) {
+            Text("需要审批")
+                .font(.system(size: 24, weight: .bold))
+            
+            Text("Claude Code 正在请求执行高风险操作")
+                .font(.system(size: 14))
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 60)
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(12)
     }
-
-    // MARK: - Approval Card
-
-    @ViewBuilder
-    private func approvalCard(for event: ClaudeEvent) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Header
-            HStack {
-                Image(systemName: "terminal.fill")
-                    .foregroundColor(.accentColor)
-
-                Text("命令审批请求")
-                    .font(.headline)
-
-                Spacer()
-
-                Text(event.payload.riskLevel ?? "unknown")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(RiskLevel.from(string: event.payload.riskLevel).color.opacity(0.2))
-                    .foregroundColor(RiskLevel.from(string: event.payload.riskLevel).color)
-                    .cornerRadius(6)
-            }
-
-            Divider()
-
-            // Command Summary
-            VStack(alignment: .leading, spacing: 8) {
-                Text("命令摘要")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-
-                Text(event.payload.summary ?? event.payload.command ?? "无描述")
-                    .font(.body)
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.tertiarySystemGroupedBackground))
-                    .cornerRadius(8)
-            }
-
-            // Risk Warning
-            if RiskLevel.from(string: event.payload.riskLevel) == .high ||
-               RiskLevel.from(string: event.payload.riskLevel) == .critical {
-                riskWarningView(for: RiskLevel.from(string: event.payload.riskLevel))
-            }
-
-            // Description
-            if let description = event.payload.description, !description.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("详细说明")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-
-                    Text(description)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color(.tertiarySystemGroupedBackground))
-                        .cornerRadius(8)
-                }
-            }
-
-            Divider()
-
-            // Action Buttons
-            HStack(spacing: 16) {
-                Button(action: {
-                    handleApproval(event: event, approved: false)
-                }) {
-                    HStack {
-                        Image(systemName: "xmark.circle.fill")
-                        Text("拒绝")
-                    }
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.red)
-                    .cornerRadius(12)
-                }
-
-                Button(action: {
-                    handleApproval(event: event, approved: true)
-                }) {
-                    HStack {
-                        Image(systemName: "checkmark.circle.fill")
-                        Text("批准")
-                    }
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.green)
-                    .cornerRadius(12)
-                }
-            }
+    
+    // MARK: - Command Summary Card
+    
+    private var commandSummaryCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("命令摘要")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.secondary)
+            
+            Text(approvalInfo.commandSummary)
+                .font(.system(size: 16, weight: .medium))
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.secondary.opacity(0.1))
+                )
         }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
     }
-
-    // MARK: - Risk Warning View
-
-    private func riskWarningView(for riskLevel: RiskLevel) -> some View {
+    
+    // MARK: - Risk Level Indicator
+    
+    private var riskLevelIndicator: some View {
         HStack(spacing: 12) {
-            Image(systemName: riskLevel.icon)
-                .font(.title2)
-                .foregroundColor(.white)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text("⚠️ \(riskLevel.label)警告")
-                    .font(.subheadline)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-
-                Text("此操作可能会对系统造成影响，请仔细确认")
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.9))
+            // 风险等级徽章
+            HStack(spacing: 6) {
+                Image(systemName: "shield.fill")
+                    .font(.system(size: 16))
+                
+                Text(approvalInfo.riskLevel.displayName)
+                    .font(.system(size: 14, weight: .medium))
             }
-
-            Spacer()
-        }
-        .padding()
-        .background(
-            LinearGradient(
-                colors: [riskLevel.color, riskLevel.color.opacity(0.8)],
-                startPoint: .leading,
-                endPoint: .trailing
+            .foregroundColor(riskLevelColor(approvalInfo.riskLevel))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(
+                Capsule()
+                    .fill(riskLevelColor(approvalInfo.riskLevel).opacity(0.2))
             )
-        )
-        .cornerRadius(12)
-    }
-
-    // MARK: - Handle Approval
-
-    private func handleApproval(event: ClaudeEvent, approved: Bool) {
-        webSocketBridge.sendApproval(eventId: event.id, approved: approved)
-
-        let status = approved ? "Approved" : "Rejected"
-        liveActivityManager.updateActivity(status: status, progress: approved ? 1.0 : 0.0)
-
-        if approved {
-            liveActivityManager.updateActivity(status: "执行中", progress: 0.5)
-        } else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                liveActivityManager.endActivity()
+            
+            Spacer()
+            
+            // 风险说明
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(riskLevelTitle)
+                    .font(.system(size: 12, weight: .medium))
+                
+                Text(riskLevelDescription)
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
             }
+        }
+    }
+    
+    private var riskLevelTitle: String {
+        switch approvalInfo.riskLevel {
+        case .low: return "低风险"
+        case .medium: return "中等风险"
+        case .high: return "高风险"
+        case .critical: return "严重风险"
+        }
+    }
+    
+    private var riskLevelDescription: String {
+        switch approvalInfo.riskLevel {
+        case .low: return "操作通常安全"
+        case .medium: return "建议仔细检查"
+        case .high: return "可能导致数据丢失"
+        case .critical: return "不可逆的后果"
+        }
+    }
+    
+    // MARK: - Command Details Section
+    
+    private var commandDetailsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("完整命令")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.secondary)
+            
+            // 原始命令
+            Text(approvalInfo.rawCommand)
+                .font(.system(size: 14, design: .monospaced))
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.secondary.opacity(0.1))
+                )
+            
+            // 详细说明
+            Text(approvalInfo.commandDetails)
+                .font(.system(size: 14))
+                .foregroundColor(.secondary)
+        }
+        .transition(.opacity.combined(with: .move(edge: .top)))
+    }
+    
+    // MARK: - Action Buttons
+    
+    private var actionButtons: some View {
+        VStack(spacing: 12) {
+            // 批准按钮
+            Button {
+                isProcessing = true
+                onApprove()
+            } label: {
+                HStack(spacing: 8) {
+                    if isProcessing {
+                        ProgressView()
+                            .tint(.white)
+                    } else {
+                        Image(systemName: "checkmark.circle.fill")
+                    }
+                    
+                    Text("批准执行")
+                        .font(.system(size: 16, weight: .medium))
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.green)
+                )
+            }
+            .disabled(isProcessing)
+            
+            // 拒绝按钮
+            Button {
+                isProcessing = true
+                onReject()
+            } label: {
+                HStack(spacing: 8) {
+                    if isProcessing {
+                        ProgressView()
+                    } else {
+                        Image(systemName: "xmark.circle.fill")
+                    }
+                    
+                    Text("拒绝执行")
+                        .font(.system(size: 16, weight: .medium))
+                }
+                .foregroundColor(.red)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.red.opacity(0.1))
+                )
+            }
+            .disabled(isProcessing)
+        }
+    }
+    
+    // MARK: - Source Info
+    
+    private var sourceInfo: some View {
+        VStack(spacing: 8) {
+            Divider()
+            
+            HStack {
+                Image(systemName: "desktopcomputer")
+                    .foregroundColor(.secondary)
+                
+                Text("来自 Mac")
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+                
+                Spacer()
+                
+                Text("Event ID: \(approvalInfo.eventId)")
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundColor(.secondary.opacity(0.6))
+            }
+        }
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func riskLevelColor(_ level: RiskLevel) -> Color {
+        switch level {
+        case .low: return .green
+        case .medium: return .orange
+        case .high: return .red
+        case .critical: return .purple
         }
     }
 }
@@ -291,7 +279,14 @@ struct RemoteApprovalView: View {
 
 #Preview {
     RemoteApprovalView(
-        webSocketBridge: WebSocketBridge(),
-        liveActivityManager: LiveActivityManager()
+        approvalInfo: ApprovalInfo(
+            eventId: "evt_abc123",
+            commandSummary: "rm -rf ./node_modules",
+            commandDetails: "删除整个 node_modules 目录及其所有依赖包",
+            riskLevel: .high,
+            rawCommand: "rm -rf ./node_modules"
+        ),
+        onApprove: { print("Approved") },
+        onReject: { print("Rejected") }
     )
 }

@@ -1,184 +1,177 @@
 import Foundation
 import Combine
 
-// MARK: - Claude Event Models
-
-struct ClaudeEvent: Codable, Identifiable {
-    let id: String
-    let type: String
-    let timestamp: Date?
-    let payload: EventPayload
-
-    struct EventPayload: Codable {
-        let command: String?
-        let summary: String?
-        let riskLevel: String?
-        let description: String?
-        let requiresApproval: Bool?
-    }
-}
-
-struct ApprovalResponse: Codable {
-    let eventId: String
-    let approved: Bool
-    let timestamp: Date
-
-    enum CodingKeys: String, CodingKey {
-        case eventId = "event_id"
-        case approved
-        case timestamp
-    }
-}
-
-// MARK: - WebSocket Bridge
-
+/// WebSocket 桥接器，用于 iOS App 连接到 Mac relay
+/// Mac 作为 WebSocket relay，转发 Claude Code 事件到 iOS
 @MainActor
 final class WebSocketBridge: ObservableObject {
-    @Published private(set) var isConnected: Bool = false
-    @Published private(set) var lastError: String?
+    
+    // MARK: - Published Properties
+    
+    @Published var isConnected: Bool = false
     @Published var currentEvent: ClaudeEvent?
-
+    @Published var eventHistory: [ClaudeEvent] = []
+    @Published var connectionError: String?
+    
+    // MARK: - Private Properties
+    
     private var webSocketTask: URLSessionWebSocketTask?
-    private var urlSession: URLSession?
-    private var host: String
-    private var port: Int
+    private var urlSession: URLSession
+    private let relayURL: URL
     private var reconnectAttempts: Int = 0
     private let maxReconnectAttempts: Int = 5
-    private var isIntentionalDisconnect: Bool = false
-
-    init(host: String = "localhost", port: Int = 8080) {
-        self.host = host
-        self.port = port
+    private var reconnectTimer: Timer?
+    
+    // MARK: - Constants
+    
+    static let defaultRelayURL = URL(string: "ws://localhost:8081/relay")!
+    
+    // MARK: - Initialization
+    
+    init(relayURL: URL = Self.defaultRelayURL) {
+        self.relayURL = relayURL
+        self.urlSession = URLSession.shared
     }
-
+    
+    // MARK: - Public Methods
+    
+    /// 连接到 Mac relay
     func connect() {
-        guard webSocketTask == nil else { return }
-
-        isIntentionalDisconnect = false
-        let urlString = "ws://\(host):\(port)/relay"
-        guard let url = URL(string: urlString) else {
-            lastError = "Invalid WebSocket URL"
-            return
-        }
-
-        let configuration = URLSessionConfiguration.default
-        configuration.timeoutIntervalForRequest = 30
-        configuration.timeoutIntervalForResource = 300
-        urlSession = URLSession(configuration: configuration)
-
-        webSocketTask = urlSession?.webSocketTask(with: url)
+        guard !isConnected else { return }
+        
+        let request = URLRequest(url: relayURL)
+        webSocketTask = urlSession.webSocketTask(with: request)
         webSocketTask?.resume()
+        
         isConnected = true
+        connectionError = nil
         reconnectAttempts = 0
-        lastError = nil
-
+        
         receiveMessage()
     }
-
+    
+    /// 断开连接
     func disconnect() {
-        isIntentionalDisconnect = true
         webSocketTask?.cancel(with: .goingAway, reason: nil)
         webSocketTask = nil
-        urlSession = nil
         isConnected = false
+        
+        reconnectTimer?.invalidate()
+        reconnectTimer = nil
     }
-
+    
+    /// 发送审批响应到 Mac relay
+    /// - Parameters:
+    ///   - eventId: 审批事件 ID
+    ///   - approved: 是否批准
+    func sendApprovalResponse(eventId: String, approved: Bool) {
+        let response: [String: Any] = [
+            "type": approved ? "APPROVED" : "REJECTED",
+            "eventId": eventId,
+            "timestamp": ISO8601DateFormatter().string(from: Date()),
+            "source": "iOS"
+        ]
+        
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: response),
+              let jsonString = String(data: jsonData, encoding: .utf8) else {
+            return
+        }
+        
+        webSocketTask?.send(.string(jsonString), completionHandler: { error in
+            if let error = error {
+                print("发送审批响应失败: \(error.localizedDescription)")
+            }
+        })
+    }
+    
+    // MARK: - Private Methods
+    
+    /// 接收 WebSocket 消息
     private func receiveMessage() {
         webSocketTask?.receive { [weak self] result in
+            guard let self = self else { return }
+            
             Task { @MainActor in
-                guard let self = self else { return }
-
                 switch result {
-                case .success(let message):
-                    self.handleMessage(message)
-                    self.receiveMessage()
-
+                case .success(.string(let jsonString)):
+                    self.handleRawMessage(jsonString)
+                    
+                case .success(.data(let data)):
+                    if let jsonString = String(data: data, encoding: .utf8) {
+                        self.handleRawMessage(jsonString)
+                    }
+                    
                 case .failure(let error):
-                    self.lastError = error.localizedDescription
-                    self.isConnected = false
-                    self.attemptReconnect()
+                    print("接收消息失败: \(error.localizedDescription)")
+                    self.handleDisconnect()
+                    
+                default:
+                    break
+                }
+                
+                if self.isConnected {
+                    self.receiveMessage()
                 }
             }
         }
     }
-
-    private func handleMessage(_ message: URLSessionWebSocketTask.Message) {
-        switch message {
-        case .string(let text):
-            decodeAndProcess(text)
-        case .data(let data):
-            if let text = String(data: data, encoding: .utf8) {
-                decodeAndProcess(text)
-            }
-        @unknown default:
-            lastError = "Unknown message type received"
-        }
-    }
-
-    private func decodeAndProcess(_ text: String) {
-        guard let data = text.data(using: .utf8) else { return }
-
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-
-        do {
-            let event = try decoder.decode(ClaudeEvent.self, from: data)
-            currentEvent = event
-        } catch {
-            lastError = "Failed to decode event: \(error.localizedDescription)"
-        }
-    }
-
-    func sendApproval(eventId: String, approved: Bool) {
-        let response = ApprovalResponse(
-            eventId: eventId,
-            approved: approved,
-            timestamp: Date()
-        )
-
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-
-        guard let data = try? encoder.encode(response),
-              let jsonString = String(data: data, encoding: .utf8) else {
-            lastError = "Failed to encode approval response"
+    
+    /// 处理原始 JSON 消息
+    private func handleRawMessage(_ jsonString: String) {
+        guard let jsonData = jsonString.data(using: .utf8),
+              let event = try? JSONDecoder().decode(ClaudeEvent.self, from: jsonData) else {
+            print("无法解析事件: \(jsonString)")
             return
         }
-
-        let message = URLSessionWebSocketTask.Message.string(jsonString)
-        webSocketTask?.send(message) { [weak self] error in
-            Task { @MainActor in
-                if let error = error {
-                    self?.lastError = "Failed to send approval: \(error.localizedDescription)"
+        
+        handleEvent(event)
+    }
+    
+    /// 处理事件
+    private func handleEvent(_ event: ClaudeEvent) {
+        currentEvent = event
+        eventHistory.append(event)
+        
+        // 限制历史记录长度
+        if eventHistory.count > 50 {
+            eventHistory.removeFirst(eventHistory.count - 50)
+        }
+        
+        // 更新 Live Activity
+        LiveActivityManager.shared.updateActivity(with: event)
+    }
+    
+    /// 处理断开连接
+    private func handleDisconnect() {
+        isConnected = false
+        webSocketTask = nil
+        
+        if reconnectAttempts < maxReconnectAttempts {
+            reconnectAttempts += 1
+            let delay = TimeInterval(reconnectAttempts * 2)
+            
+            reconnectTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) { [weak self] _ in
+                Task { @MainActor in
+                    self?.connect()
                 }
             }
+        } else {
+            connectionError = "无法连接到 Mac relay，已达到最大重连次数"
         }
     }
-
-    private func attemptReconnect() {
-        guard !isIntentionalDisconnect,
-              reconnectAttempts < maxReconnectAttempts else {
-            if reconnectAttempts >= maxReconnectAttempts {
-                lastError = "Max reconnection attempts reached"
-            }
-            return
-        }
-
-        reconnectAttempts += 1
-        let delay = Double(reconnectAttempts) * 2.0
-
+    
+    // MARK: - Mock Mode
+    
+    /// 启用 Mock 模式（用于测试）
+    func enableMockMode() {
+        isConnected = true
+        connectionError = nil
+        
         Task {
-            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-            connect()
-        }
-    }
-
-    func updateConnection(host: String, port: Int) {
-        self.host = host
-        self.port = port
-        if isConnected {
-            disconnect()
-            connect()
+            for eventType in [EventType.thinking, .coding, .waiting, .approvalRequired] {
+                try? await Task.sleep(for: .seconds(2))
+                handleEvent(ClaudeEvent.sample(type: eventType))
+            }
         }
     }
 }

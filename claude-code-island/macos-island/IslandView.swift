@@ -1,289 +1,360 @@
 import SwiftUI
 
-// MARK: - IslandView
-
+/// 菜单栏/灵动岛 UI 视图
+/// 显示 Claude Code 当前状态、任务进度、审批请求
 struct IslandView: View {
-    @ObservedObject var manager: EventStreamManager
-
+    
+    // MARK: - Environment
+    
+    @ObservedObject var eventManager: EventStreamManager
+    @State private var isExpanded: Bool = false
+    @State private var showApprovalSheet: Bool = false
+    
+    // MARK: - Body
+    
     var body: some View {
         VStack(spacing: 0) {
+            // Compact 模式（默认显示）
             compactView
+                .onTapGesture {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isExpanded.toggle()
+                    }
+                }
+            
+            // Expanded 模式（点击展开）
+            if isExpanded {
+                expandedView
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
         }
-        .frame(minWidth: 300, maxWidth: 360)
+        .frame(width: 280)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.ultraThinMaterial)
+                .shadow(radius: 4)
+        )
+        .sheet(isPresented: $showApprovalSheet) {
+            if let event = eventManager.currentEvent,
+               event.type == .approvalRequired {
+                ApprovalView(
+                    approvalInfo: ApprovalInfo(from: event),
+                    onApprove: {
+                        eventManager.sendApprovalResponse(
+                            eventId: ApprovalInfo(from: event).eventId,
+                            approved: true
+                        )
+                        showApprovalSheet = false
+                    },
+                    onReject: {
+                        eventManager.sendApprovalResponse(
+                            eventId: ApprovalInfo(from: event).eventId,
+                            approved: false
+                        )
+                        showApprovalSheet = false
+                    }
+                )
+            }
+        }
     }
-
-    // MARK: - Compact View (灵动岛压缩状态)
-
+    
+    // MARK: - Compact View
+    
     private var compactView: some View {
-        HStack(spacing: 12) {
-            // 状态指示器
-            statusIndicator
-
+        HStack(spacing: 8) {
+            // 状态图标
+            statusIcon
+            
             // 任务描述
-            if let currentEvent = manager.currentEvent,
-               let description = currentEvent.payload.taskDescription ?? currentEvent.payload.message {
-                Text(description)
-                    .font(.system(size: 13, weight: .medium))
-                    .lineLimit(1)
-                    .foregroundStyle(statusColor)
-            } else {
-                Text("等待 Claude Code...")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-            }
-
+            Text(currentTaskDescription)
+                .font(.system(size: 12, weight: .medium))
+                .lineLimit(1)
+                .truncationMode(.tail)
+            
             Spacer()
-
-            // 连接状态
+            
+            // 连接状态指示
             connectionIndicator
+            
+            // 展开箭头
+            Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                .font(.system(size: 10))
+                .foregroundColor(.secondary)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(Color(nsColor: .controlBackgroundColor))
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
     }
-
-    // MARK: - Expanded View (灵动岛展开状态)
-
-    var expandedView: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // 头部：状态和连接
-            headerSection
-
+    
+    // MARK: - Expanded View
+    
+    private var expandedView: some View {
+        VStack(alignment: .leading, spacing: 8) {
             Divider()
-
-            // 当前任务
-            if let currentEvent = manager.currentEvent {
-                currentTaskSection(event: currentEvent)
+                .padding(.horizontal, 12)
+            
+            // 当前事件详情
+            if let event = eventManager.currentEvent {
+                eventDetailView(event)
+            } else {
+                Text("等待事件...")
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 12)
             }
-
-            // 进度条（如有）
-            if let progress = manager.currentEvent?.payload.progress {
-                progressSection(progress: progress)
+            
+            // 最近事件历史
+            if !eventManager.eventHistory.isEmpty {
+                recentEventsView
             }
-
-            // 最近事件
-            recentEventsSection
-
-            Spacer()
-
+            
             // 操作按钮
             actionButtons
         }
-        .padding(16)
-        .frame(minWidth: 360, minHeight: 280)
+        .padding(.bottom, 12)
     }
-
-    // MARK: - Subviews
-
-    private var statusIndicator: some View {
-        Circle()
-            .fill(statusColor)
-            .frame(width: 10, height: 10)
-            .overlay {
-                if manager.currentEvent?.type == .thinking {
-                    Circle()
-                        .stroke(statusColor.opacity(0.5), lineWidth: 2)
-                        .frame(width: 18, height: 18)
-                        .modifier(PulseAnimation())
-                }
-            }
-    }
-
-    private var connectionIndicator: some View {
-        Group {
-            switch manager.connectionState {
-            case .connected:
-                Image(systemName: "wifi")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.green)
-            case .connecting, .reconnecting:
-                ProgressView()
-                    .scaleEffect(0.5)
-            case .disconnected:
-                Image(systemName: "wifi.slash")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.red)
-            case .failed:
-                Image(systemName: "exclamationmark.triangle")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.orange)
-            }
-        }
-    }
-
-    private var headerSection: some View {
-        HStack {
-            Text("Claude Island")
-                .font(.system(size: 15, weight: .semibold))
-
-            Spacer()
-
-            statusBadge
-        }
-    }
-
-    private var statusBadge: some View {
-        HStack(spacing: 4) {
+    
+    // MARK: - Status Icon
+    
+    @ViewBuilder
+    private var statusIcon: some View {
+        let eventType = eventManager.currentEvent?.type ?? .disconnected
+        
+        ZStack {
             Circle()
-                .fill(statusColor)
-                .frame(width: 8, height: 8)
-
-            Text(manager.currentEvent?.type.displayName ?? "空闲")
-                .font(.system(size: 11, weight: .medium))
+                .fill(statusColor(for: eventType))
+                .frame(width: 24, height: 24)
+            
+            Image(systemName: statusIconName(for: eventType))
+                .font(.system(size: 12))
+                .foregroundColor(.white)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(statusColor.opacity(0.15))
-        .clipShape(Capsule())
+        .animation(.easeInOut, value: eventType)
     }
-
-    private func currentTaskSection(event: ClaudeEvent) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("当前任务")
-                .font(.system(size: 11))
-                .foregroundStyle(.secondary)
-
-            if let description = event.payload.taskDescription {
-                Text(description)
-                    .font(.system(size: 13, weight: .medium))
-                    .lineLimit(2)
-            } else if let message = event.payload.message {
-                Text(message)
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-            }
-        }
-    }
-
-    private func progressSection(progress: Double) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text("进度")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-
-                Spacer()
-
-                Text("\(Int(progress * 100))%")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(statusColor)
-            }
-
-            ProgressView(value: progress)
-                .tint(statusColor)
-        }
-    }
-
-    private var recentEventsSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("最近活动")
-                .font(.system(size: 11))
-                .foregroundStyle(.secondary)
-
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 4) {
-                    ForEach(manager.events.prefix(5)) { event in
-                        eventRow(event: event)
-                    }
-                }
-            }
-            .frame(maxHeight: 100)
-        }
-    }
-
-    private func eventRow(event: ClaudeEvent) -> some View {
-        HStack(spacing: 8) {
-            Circle()
-                .fill(colorForEventType(event.type))
-                .frame(width: 6, height: 6)
-
-            Text(event.type.displayName)
-                .font(.system(size: 11))
-                .foregroundStyle(.secondary)
-
-            Spacer()
-
-            Text(event.receivedAt, style: .time)
-                .font(.system(size: 10))
-                .foregroundStyle(.tertiary)
-        }
-        .padding(.vertical, 2)
-    }
-
-    private var actionButtons: some View {
-        HStack(spacing: 12) {
-            Button(action: { manager.clearEvents() }) {
-                Label("清空", systemImage: "trash")
-                    .font(.system(size: 12))
-            }
-            .buttonStyle(.bordered)
-
-            Spacer()
-
-            if manager.pendingApproval != nil {
-                Button(action: { manager.mockReject() }) {
-                    Text("拒绝")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(.red)
-                }
-                .buttonStyle(.bordered)
-
-                Button(action: { manager.mockApprove() }) {
-                    Text("批准")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(.white)
-                }
-                .buttonStyle(.borderedProminent)
-            }
-        }
-    }
-
-    // MARK: - Helpers
-
-    private var statusColor: Color {
-        guard let eventType = manager.currentEvent?.type else {
-            return .gray
-        }
-        return colorForEventType(eventType)
-    }
-
-    private func colorForEventType(_ type: EventType) -> Color {
+    
+    private func statusColor(for type: EventType) -> Color {
         switch type {
         case .thinking: return .blue
         case .coding: return .green
         case .waiting: return .orange
+        case .approvalRequired: return .red
         case .approved: return .green
         case .rejected: return .red
         case .error: return .red
         case .connected: return .green
         case .disconnected: return .gray
-        case .approvalRequired: return .orange
         }
     }
-}
-
-// MARK: - Pulse Animation
-
-struct PulseAnimation: ViewModifier {
-    @State private var isAnimating = false
-
-    func body(content: Content) -> some View {
-        content
-            .scaleEffect(isAnimating ? 1.2 : 1.0)
-            .opacity(isAnimating ? 0.0 : 0.8)
-            .animation(
-                .easeInOut(duration: 1.0).repeatForever(autoreverses: false),
-                value: isAnimating
-            )
-            .onAppear {
-                isAnimating = true
+    
+    private func statusIconName(for type: EventType) -> String {
+        switch type {
+        case .thinking: return "brain"
+        case .coding: return "terminal"
+        case .waiting: return "clock"
+        case .approvalRequired: return "exclamationmark.triangle"
+        case .approved: return "checkmark"
+        case .rejected: return "xmark"
+        case .error: return "bolt.trianglebadge.exclamationmark"
+        case .connected: return "antenna.radiowaves.left.and.right"
+        case .disconnected: return "wifi.slash"
+        }
+    }
+    
+    // MARK: - Connection Indicator
+    
+    @ViewBuilder
+    private var connectionIndicator: some View {
+        HStack(spacing: 4) {
+            Circle()
+                .fill(eventManager.isConnected ? Color.green : Color.red)
+                .frame(width: 6, height: 6)
+            
+            Text(eventManager.isConnected ? "已连接" : "未连接")
+                .font(.system(size: 10))
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    // MARK: - Current Task Description
+    
+    private var currentTaskDescription: String {
+        guard let event = eventManager.currentEvent else {
+            return "等待 Claude Code..."
+        }
+        
+        switch event.type {
+        case .thinking:
+            return event.payload.taskDescription ?? "思考中..."
+        case .coding:
+            return event.payload.taskDescription ?? "编码中..."
+        case .waiting:
+            return event.payload.taskDescription ?? "等待中..."
+        case .approvalRequired:
+            return "需要审批: \(event.payload.commandSummary ?? "未知命令")"
+        case .approved:
+            return "已批准"
+        case .rejected:
+            return "已拒绝"
+        case .error:
+            return event.payload.message ?? "发生错误"
+        case .connected:
+            return "已连接"
+        case .disconnected:
+            return "已断开"
+        }
+    }
+    
+    // MARK: - Event Detail View
+    
+    private func eventDetailView(_ event: ClaudeEvent) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            // 事件类型
+            HStack {
+                Text(event.type.displayName)
+                    .font(.system(size: 13, weight: .semibold))
+                
+                Spacer()
+                
+                Text(timeAgoString(from: event.receivedAt))
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
             }
+            
+            // 事件消息
+            if let message = event.payload.message {
+                Text(message)
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+            }
+            
+            // 进度条（编码状态）
+            if event.type == .coding,
+               let progress = event.payload.progress {
+                ProgressView(value: progress, total: 1.0)
+                    .progressViewStyle(.linear)
+                    .tint(.green)
+                
+                Text("\(Int(progress * 100))% 完成")
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+            }
+            
+            // 风险等级（审批状态）
+            if event.type == .approvalRequired,
+               let riskLevel = event.payload.riskLevel {
+                HStack(spacing: 4) {
+                    Image(systemName: "shield.fill")
+                        .foregroundColor(riskLevelColor(riskLevel))
+                    
+                    Text(riskLevel.displayName)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(riskLevelColor(riskLevel))
+                }
+            }
+        }
+        .padding(.horizontal, 12)
+    }
+    
+    private func riskLevelColor(_ level: RiskLevel) -> Color {
+        switch level {
+        case .low: return .green
+        case .medium: return .orange
+        case .high: return .red
+        case .critical: return .purple
+        }
+    }
+    
+    // MARK: - Recent Events View
+    
+    private var recentEventsView: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("最近事件")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 12)
+            
+            ForEach(eventManager.eventHistory.suffix(3)) { event in
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(statusColor(for: event.type))
+                        .frame(width: 8, height: 8)
+                    
+                    Text(event.type.displayName)
+                        .font(.system(size: 10))
+                    
+                    Spacer()
+                    
+                    Text(timeAgoString(from: event.receivedAt))
+                        .font(.system(size: 9))
+                        .foregroundColor(.secondary)
+                }
+                .padding(.horizontal, 12)
+            }
+        }
+    }
+    
+    // MARK: - Action Buttons
+    
+    private var actionButtons: some View {
+        HStack(spacing: 8) {
+            // 连接/断开按钮
+            Button {
+                if eventManager.isConnected {
+                    eventManager.disconnect()
+                } else {
+                    eventManager.connect()
+                }
+            } label: {
+                Text(eventManager.isConnected ? "断开" : "连接")
+                    .font(.system(size: 11))
+            }
+            .buttonStyle(.bordered)
+            
+            // 审批按钮（仅审批状态显示）
+            if eventManager.currentEvent?.type == .approvalRequired {
+                Button {
+                    showApprovalSheet = true
+                } label: {
+                    Text("审批")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.red)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            
+            // Mock 模式按钮
+            Button {
+                eventManager.enableMockMode()
+            } label: {
+                Text("Mock")
+                    .font(.system(size: 11))
+            }
+            .buttonStyle(.bordered)
+        }
+        .padding(.horizontal, 12)
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func timeAgoString(from date: Date) -> String {
+        let interval = Date().timeIntervalSince(date)
+        
+        if interval < 60 {
+            return "刚刚"
+        } else if interval < 3600 {
+            return "\(Int(interval / 60))分钟前"
+        } else {
+            return "\(Int(interval / 3600))小时前"
+        }
     }
 }
 
 // MARK: - Preview
 
 #Preview {
-    IslandView(manager: EventStreamManager.shared)
-        .frame(width: 360, height: 300)
+    let manager = EventStreamManager()
+    manager.enableMockMode()
+    
+    return IslandView(eventManager: manager)
+        .padding()
 }

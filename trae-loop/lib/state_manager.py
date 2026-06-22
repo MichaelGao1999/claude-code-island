@@ -17,6 +17,7 @@ from typing import Optional, Tuple
 from lib import (
     PHASES,
     MAX_ATTEMPTS,
+    MAX_ITER,
     STATE_FILE,
     STATE_SCHEMA_FILE,
     PROJECT_NAME,
@@ -74,6 +75,12 @@ class StateManager:
             "errors": [],
             "startedAt": now,
             "updatedAt": now,
+            # AgentLoop 模式 C 字段
+            "iterations": 0,
+            "messages": [],
+            "mode": "manual",           # "auto" (模式 C) | "manual" (模式 B)
+            "scope_file": None,
+            "trace_file": None,
         }
         self.save()
         return self.state
@@ -152,6 +159,46 @@ class StateManager:
             errors.append("artifacts must be a dict")
 
         return (len(errors) == 0, errors)
+
+    # ------------------------------------------------------------------ #
+    # 模式 C 扩展方法
+    # ------------------------------------------------------------------ #
+
+    def set_mode(self, mode: str) -> None:
+        """设置运行模式: "auto" (模式 C) 或 "manual" (模式 B)。"""
+        self.state["mode"] = mode
+        self.save()
+
+    def set_iterations(self, n: int) -> None:
+        """设置已执行迭代数。"""
+        self.state["iterations"] = n
+        self.save()
+
+    def increment_iterations(self) -> int:
+        """iterations += 1, 保存, 返回新值。"""
+        self.state["iterations"] = self.state.get("iterations", 0) + 1
+        self.save()
+        return self.state["iterations"]
+
+    def save_messages(self, messages: list[dict]) -> None:
+        """持久化 messages (最多保留最近 100 条)。"""
+        self.state["messages"] = messages[-100:]  # 保留最近 100 条
+        self.save()
+
+    def restore_messages(self) -> list[dict]:
+        """从 state.json 恢复 messages (用于断点继续)。"""
+        return self.state.get("messages", [])
+
+    def set_scope_file(self, path: str | None) -> None:
+        self.state["scope_file"] = path
+        self.save()
+
+    def set_trace_file(self, path: str | None) -> None:
+        self.state["trace_file"] = path
+        self.save()
+
+    def is_mode_c(self) -> bool:
+        return self.state.get("mode") == "auto"
 
     # ------------------------------------------------------------------ #
     # 状态变更业务方法

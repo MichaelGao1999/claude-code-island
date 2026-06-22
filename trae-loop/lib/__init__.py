@@ -58,3 +58,11 @@ ARTIFACT_IOS = [
 MACOS_DIR = "macos-island"
 IOS_DIR = "ios-island"
 VERIFICATION_FILE = "verification-report.md"
+
+# --- AgentLoop 配置常量 (模式 C) ---
+MAX_ITER = 20               # 主循环最大迭代次数
+CHECKPOINT_EVERY = 5        # 每 N 轮自动 check_all
+PATCH_MAX_ITER = 10         # Patch 循环最大迭代次数 (比主循环少)
+COMMAND_TIMEOUT = 30        # 命令执行超时 (秒)
+AGENT_TIMEOUT = 120         # Agent CLI step 超时 (秒, 含思考时间)
+AGENT_MAX_RETRIES = 2       # Agent CLI 非零退出重试次数

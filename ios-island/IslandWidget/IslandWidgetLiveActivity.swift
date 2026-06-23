@@ -86,6 +86,7 @@ struct IslandWidgetLiveActivity: Widget {
 
     // MARK: - 展开态-右侧
 
+    @ViewBuilder
     private func expandedTrailingView(_ context: ActivityViewContext<ClaudeCodeActivityAttributes>) -> some View {
         if let risk = context.state.riskLevel {
             RiskBadge(level: risk)
@@ -94,9 +95,10 @@ struct IslandWidgetLiveActivity: Widget {
 
     // MARK: - 展开态-底部
 
+    @ViewBuilder
     private func expandedBottomView(_ context: ActivityViewContext<ClaudeCodeActivityAttributes>) -> some View {
-        if let progress = context.state.progress, progress > 0 {
-            ProgressView(value: progress, total: 1.0)
+        if context.state.progress > 0 {
+            ProgressView(value: context.state.progress, total: 1.0)
                 .progressViewStyle(.linear)
                 .tint(color(for: context.state.eventType))
                 .padding(.horizontal)

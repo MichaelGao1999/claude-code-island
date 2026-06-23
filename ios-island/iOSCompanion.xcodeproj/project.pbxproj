@@ -13,14 +13,14 @@
 		4C3500C52FEABAED002AA3F5 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C3500C42FEABAED002AA3F5 /* WidgetKit.framework */; };
 		4C3500C72FEABAED002AA3F5 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C3500C62FEABAED002AA3F5 /* SwiftUI.framework */; };
 		4C3500D82FEABAEE002AA3F5 /* IslandWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4C3500C22FEABAED002AA3F5 /* IslandWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		4C3500DE2FEABB69002AA3F5 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = cffd5253003c791e338b8ff8 /* LiveActivityManager.swift */; };
+		4C35010A2FEAC4F7002AA3F5 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = cffd5253003c791e338b8ff8 /* LiveActivityManager.swift */; };
+		7756d658fc8b022cf348672a /* ClaudeCodeActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9b35857fbad35869ea7d3779 /* ClaudeCodeActivityAttributes.swift */; };
+		861f5bd8924351bd3e425b9b /* ClaudeCodeActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9b35857fbad35869ea7d3779 /* ClaudeCodeActivityAttributes.swift */; };
 		a1b2c3d4e5f6a7b8c9d0e1f2 /* ClaudeEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = b2c3d4e5f6a7b8c9d0e1f2a3 /* ClaudeEvent.swift */; };
 		a82fe49106fa2c10b5726767 /* WatchRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = c99e9ade13510be9ea24cbfd /* WatchRelay.swift */; };
 		c3d4e5f6a7b8c9d0e1f2a3b4 /* HMACSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = d4e5f6a7b8c9d0e1f2a3b4c5 /* HMACSigner.swift */; };
 		e7655cb587cc785a80f40d18 /* WebSocketBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86b4dbff28133826269b5a02 /* WebSocketBridge.swift */; };
-			7756d658fc8b022cf348672a /* ClaudeCodeActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9b35857fbad35869ea7d3779 /* ClaudeCodeActivityAttributes.swift */; };
-			861f5bd8924351bd3e425b9b /* ClaudeCodeActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9b35857fbad35869ea7d3779 /* ClaudeCodeActivityAttributes.swift */; };
-	/* End PBXBuildFile section */
+/* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		4C3500D62FEABAEE002AA3F5 /* PBXContainerItemProxy */ = {
@@ -53,13 +53,13 @@
 		54513fff8e3210ea7f5a5de9 /* iOSCompanion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSCompanion.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6b0f02e196460c54340e9365 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		86b4dbff28133826269b5a02 /* WebSocketBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketBridge.swift; sourceTree = "<group>"; };
+		9b35857fbad35869ea7d3779 /* ClaudeCodeActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeCodeActivityAttributes.swift; sourceTree = "<group>"; };
 		b2c3d4e5f6a7b8c9d0e1f2a3 /* ClaudeEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeEvent.swift; sourceTree = "<group>"; };
 		c99e9ade13510be9ea24cbfd /* WatchRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchRelay.swift; sourceTree = "<group>"; };
 		cffd5253003c791e338b8ff8 /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
 		d4e5f6a7b8c9d0e1f2a3b4c5 /* HMACSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMACSigner.swift; sourceTree = "<group>"; };
 		d806b1b13aca69684f6b1c48 /* RemoteApprovalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteApprovalView.swift; sourceTree = "<group>"; };
-			9b35857fbad35869ea7d3779 /* ClaudeCodeActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeCodeActivityAttributes.swift; sourceTree = "<group>"; };
-	/* End PBXFileReference section */
+/* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		4C3500DC2FEABAEE002AA3F5 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
@@ -116,14 +116,14 @@
 		93b5c766109f7ba52dc8e5aa = {
 			isa = PBXGroup;
 			children = (
-				f15c3831be3303a4f0bcf715 /*  */,
+				f15c3831be3303a4f0bcf715,
 				4C3500C82FEABAED002AA3F5 /* IslandWidget */,
 				4C3500C32FEABAED002AA3F5 /* Frameworks */,
 				33a95d6c3a804494d0a1e814 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		f15c3831be3303a4f0bcf715 /*  */ = {
+		f15c3831be3303a4f0bcf715 = {
 			isa = PBXGroup;
 			children = (
 				b2c3d4e5f6a7b8c9d0e1f2a3 /* ClaudeEvent.swift */,
@@ -135,7 +135,6 @@
 				6b0f02e196460c54340e9365 /* main.swift */,
 				9b35857fbad35869ea7d3779 /* ClaudeCodeActivityAttributes.swift */,
 			);
-			name = "";
 			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
@@ -229,6 +228,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				a1b2c3d4e5f6a7b8c9d0e1f2 /* ClaudeEvent.swift in Sources */,
+				4C35010A2FEAC4F7002AA3F5 /* LiveActivityManager.swift in Sources */,
 				861f5bd8924351bd3e425b9b /* ClaudeCodeActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

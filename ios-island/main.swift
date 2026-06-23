@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 // MARK: - App Entry Point
 
@@ -20,6 +21,10 @@ struct iOSCompanionApp: App {
                 .onAppear {
                     bridge.connect()
                     LiveActivityManager.shared.startActivity()
+                }
+                .onReceive(bridge.$currentEvent) { event in
+                    guard let event = event else { return }
+                    LiveActivityManager.shared.updateActivity(with: event)
                 }
         }
         #else

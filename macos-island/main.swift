@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - App Entry Point
 
 /// Claude Code Island macOS 应用入口
-/// 使用 MenuBarExtra 在菜单栏/灵动岛显示状态
+/// 使用 MenuBarExtra 在菜单栏显示状态 + 系统通知
 @main
 struct IslandApp: App {
     

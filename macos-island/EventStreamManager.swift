@@ -47,6 +47,9 @@ final class EventStreamManager: ObservableObject, Sendable {
         connectionError = nil
         reconnectAttempts = 0
         
+        // 启动 Live Activity（灵动岛）
+        IslandLiveActivityManager.shared.startActivity()
+        
         // 发送连接事件
         handleEvent(ClaudeEvent(type: .connected, message: "已连接到 Claude Code"))
         
@@ -59,6 +62,9 @@ final class EventStreamManager: ObservableObject, Sendable {
         webSocketTask?.cancel(with: .goingAway, reason: nil)
         webSocketTask = nil
         isConnected = false
+        
+        // 结束 Live Activity
+        IslandLiveActivityManager.shared.endActivity()
         
         // 发送断开事件
         handleEvent(ClaudeEvent(type: .disconnected, message: "连接已断开"))
@@ -144,6 +150,9 @@ final class EventStreamManager: ObservableObject, Sendable {
         if eventHistory.count > 100 {
             eventHistory.removeFirst(eventHistory.count - 100)
         }
+        
+        // 更新 Live Activity（灵动岛）
+        IslandLiveActivityManager.shared.updateActivity(with: event)
     }
     
     /// 处理断开连接

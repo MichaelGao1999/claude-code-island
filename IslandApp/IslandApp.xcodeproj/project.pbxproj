@@ -6,14 +6,65 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4C3500A72FEAB9A1002AA3F5 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C3500A62FEAB9A1002AA3F5 /* WidgetKit.framework */; };
+		4C3500A92FEAB9A1002AA3F5 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C3500A82FEAB9A1002AA3F5 /* SwiftUI.framework */; };
+		4C3500B82FEAB9A2002AA3F5 /* IslandWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4C3500A42FEAB9A1002AA3F5 /* IslandWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4C3500B62FEAB9A2002AA3F5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4C3500782FE96F42002AA3F5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4C3500A32FEAB9A1002AA3F5;
+			remoteInfo = IslandWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4C3500BD2FEAB9A2002AA3F5 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				4C3500B82FEAB9A2002AA3F5 /* IslandWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		4C3500802FE96F42002AA3F5 /* IslandApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IslandApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C3500A42FEAB9A1002AA3F5 /* IslandWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IslandWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C3500A62FEAB9A1002AA3F5 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		4C3500A82FEAB9A1002AA3F5 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		4C3500B92FEAB9A2002AA3F5 /* Exceptions for "IslandWidget" folder in "IslandWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 4C3500A32FEAB9A1002AA3F5 /* IslandWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4C3500822FE96F42002AA3F5 /* IslandApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = IslandApp;
+			sourceTree = "<group>";
+		};
+		4C3500AA2FEAB9A1002AA3F5 /* IslandWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				4C3500B92FEAB9A2002AA3F5 /* Exceptions for "IslandWidget" folder in "IslandWidgetExtension" target */,
+			);
+			path = IslandWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -26,6 +77,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4C3500A12FEAB9A1002AA3F5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4C3500A92FEAB9A1002AA3F5 /* SwiftUI.framework in Frameworks */,
+				4C3500A72FEAB9A1002AA3F5 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -33,6 +93,8 @@
 			isa = PBXGroup;
 			children = (
 				4C3500822FE96F42002AA3F5 /* IslandApp */,
+				4C3500AA2FEAB9A1002AA3F5 /* IslandWidget */,
+				4C3500A52FEAB9A1002AA3F5 /* Frameworks */,
 				4C3500812FE96F42002AA3F5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,8 +103,18 @@
 			isa = PBXGroup;
 			children = (
 				4C3500802FE96F42002AA3F5 /* IslandApp.app */,
+				4C3500A42FEAB9A1002AA3F5 /* IslandWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		4C3500A52FEAB9A1002AA3F5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4C3500A62FEAB9A1002AA3F5 /* WidgetKit.framework */,
+				4C3500A82FEAB9A1002AA3F5 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -55,10 +127,12 @@
 				4C35007C2FE96F42002AA3F5 /* Sources */,
 				4C35007D2FE96F42002AA3F5 /* Frameworks */,
 				4C35007E2FE96F42002AA3F5 /* Resources */,
+				4C3500BD2FEAB9A2002AA3F5 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				4C3500B72FEAB9A2002AA3F5 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				4C3500822FE96F42002AA3F5 /* IslandApp */,
@@ -69,6 +143,28 @@
 			productName = IslandApp;
 			productReference = 4C3500802FE96F42002AA3F5 /* IslandApp.app */;
 			productType = "com.apple.product-type.application";
+		};
+		4C3500A32FEAB9A1002AA3F5 /* IslandWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4C3500BA2FEAB9A2002AA3F5 /* Build configuration list for PBXNativeTarget "IslandWidgetExtension" */;
+			buildPhases = (
+				4C3500A02FEAB9A1002AA3F5 /* Sources */,
+				4C3500A12FEAB9A1002AA3F5 /* Frameworks */,
+				4C3500A22FEAB9A1002AA3F5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				4C3500AA2FEAB9A1002AA3F5 /* IslandWidget */,
+			);
+			name = IslandWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = IslandWidgetExtension;
+			productReference = 4C3500A42FEAB9A1002AA3F5 /* IslandWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -81,6 +177,9 @@
 				LastUpgradeCheck = 2650;
 				TargetAttributes = {
 					4C35007F2FE96F42002AA3F5 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					4C3500A32FEAB9A1002AA3F5 = {
 						CreatedOnToolsVersion = 26.5;
 					};
 				};
@@ -100,12 +199,20 @@
 			projectRoot = "";
 			targets = (
 				4C35007F2FE96F42002AA3F5 /* IslandApp */,
+				4C3500A32FEAB9A1002AA3F5 /* IslandWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		4C35007E2FE96F42002AA3F5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4C3500A22FEAB9A1002AA3F5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +229,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4C3500A02FEAB9A1002AA3F5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4C3500B72FEAB9A2002AA3F5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4C3500A32FEAB9A1002AA3F5 /* IslandWidgetExtension */;
+			targetProxy = 4C3500B62FEAB9A2002AA3F5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		4C3500892FE96F43002AA3F5 /* Debug */ = {
@@ -303,6 +425,66 @@
 			};
 			name = Release;
 		};
+		4C3500BB2FEAB9A2002AA3F5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = IslandWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = IslandWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.islandapp.IslandApp.IslandWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		4C3500BC2FEAB9A2002AA3F5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = IslandWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = IslandWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.islandapp.IslandApp.IslandWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -320,6 +502,15 @@
 			buildConfigurations = (
 				4C35008C2FE96F43002AA3F5 /* Debug */,
 				4C35008D2FE96F43002AA3F5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4C3500BA2FEAB9A2002AA3F5 /* Build configuration list for PBXNativeTarget "IslandWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4C3500BB2FEAB9A2002AA3F5 /* Debug */,
+				4C3500BC2FEAB9A2002AA3F5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

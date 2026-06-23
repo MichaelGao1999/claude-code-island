@@ -128,19 +128,6 @@ final class LiveActivityManager: ObservableObject {
     }
 }
 
-/// Live Activity 属性（静态数据）
-struct ClaudeCodeActivityAttributes: ActivityAttributes {
-    var connectionStatus: String
-    var startTime: Date
-    
-    struct ContentState: Codable, Hashable {
-        var eventType: String
-        var taskDescription: String
-        var progress: Double
-        var riskLevel: String?
-    }
-}
-
 /// iOS 16.1 以下版本兼容
 @available(iOS, introduced: 16.0, deprecated: 16.1, message: "Use LiveActivityManager instead")
 final class LegacyActivityManager: ObservableObject {

@@ -9,21 +9,20 @@
 *.swiftmodule
 *.swiftdoc
 *.o
-
 *.xcodeproj/xcuserdata/
 *.xcworkspace/xcuserdata/
 xcuserdata/
 DerivedData/
 *.xcuserstate
 project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
-
 .swiftpm/
 Packages/
-
 *.ipa
 *.app
 *.dylib
 *.framework
+# 直接构建目录（非 DerivedData）
+build/
 
 # ===== Python (trae-loop) =====
 trae-loop/execution/
@@ -40,33 +39,5 @@ __pycache__/
 *.swo
 
 # ===== 临时文件 =====
-*.log
-*.tmp
-# Xcode / Swift
-.DS_Store
-.build/
-*.swiftmodule
-*.swiftdoc
-*.o
-
-# Xcode 项目内部产物
-*.xcodeproj/xcuserdata/
-*.xcworkspace/xcuserdata/
-xcuserdata/
-DerivedData/
-*.xcuserstate
-project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
-
-# SwiftPM
-.swiftpm/
-Packages/
-
-# iOS / macOS 构建产物
-*.ipa
-*.app
-*.dylib
-*.framework
-
-# 临时文件
 *.log
 *.tmp
